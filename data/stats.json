@@ -1,0 +1,44 @@
+{
+  "updated_at": "2026-09-30T20:26:00+08:00",
+  "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
+  "github": {
+    "repos": 12,
+    "orig_repos": 7,
+    "forks": 5,
+    "stars": 8,
+    "followers": 2,
+    "following": 6
+  },
+  "bilibili": {
+    "uid": "3493271126935853",
+    "name": "可爱的硬币1145",
+    "level": 3,
+    "videos": 16,
+    "fans": 15,
+    "following": 246
+  },
+  "douyin_a": {
+    "sec_uid": "MS4wLjABAAAAocDV9OG3ChdHJefUldaCZGRAWjlqFJUej-JnA3fbJHbdzcdHvUbc75k6V21p66HT",
+    "unique_id": "zhonglike",
+    "works": 3,
+    "likes": 68,
+    "fans": 8,
+    "following": 10
+  },
+  "douyin_b": {
+    "sec_uid": "MS4wLjABAAAA5J8q0yjNvN2gPwe9WgMGsHBjkQOs_iPEKVBcFobpgQyBSyikwbABUDuaGJC1pIXg",
+    "unique_id": "32304602756",
+    "name": "可爱的硬币1145",
+    "works": 122,
+    "likes": 670,
+    "fans": 70,
+    "following": 600
+  },
+  "steam": {
+    "vanity": "johnhan",
+    "name": "Cozy",
+    "id64": "76561198168665105",
+    "vac_bans": 0,
+    "private": true
+  }
+}
