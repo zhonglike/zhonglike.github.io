@@ -15,6 +15,8 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 TZ = datetime.timezone(datetime.timedelta(hours=8))
 
 GH_USER = "zhonglike"
+# 门户站自身的仓库不计入作品集统计，避免自我引用
+EXCLUDE_REPOS = {"zhonglike.github.io"}
 BILI_MID = "3493271126935853"
 DOUYIN_A = "MS4wLjABAAAAocDV9OG3ChdHJefUldaCZGRAWjlqFJUej-JnA3fbJHbdzcdHvUbc75k6V21p66HT"
 DOUYIN_B = "MS4wLjABAAAA5J8q0yjNvN2gPwe9WgMGsHBjkQOs_iPEKVBcFobpgQyBSyikwbABUDuaGJC1pIXg"
@@ -61,7 +63,8 @@ def main():
                      {"Accept": "application/vnd.github+json"})
         repos = get_json("https://api.github.com/users/%s/repos?per_page=100&sort=updated" % GH_USER,
                          {"Accept": "application/vnd.github+json"})
-        orig = [r for r in repos if not r.get("fork")]
+        orig = [r for r in repos
+               if not r.get("fork") and r.get("name") not in EXCLUDE_REPOS]
         return {
             "repos": len(repos),
             "orig_repos": len(orig),
