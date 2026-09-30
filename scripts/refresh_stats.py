@@ -68,7 +68,7 @@ def main():
         return {
             "repos": len(repos),
             "orig_repos": len(orig),
-            "forks": len(repos) - len(orig),
+            "forks": sum(1 for r in repos if r.get("fork")),
             "stars": sum(r.get("stargazers_count", 0) for r in orig),
             "followers": u.get("followers"),
             "following": u.get("following"),
