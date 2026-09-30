@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>zhonglike</title>
 <meta name="description" content="zhonglike（G-zhonglike）— GitHub / Steam / 哔哩哔哩 / 抖音 / Google 全身份聚合与项目矩阵。" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'" />
 <meta name="referrer" content="no-referrer" />
 <noscript><style>.rv{opacity:1!important;transform:none!important}</style></noscript>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' fill='%23fff' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
@@ -229,7 +229,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
   <div class="wrap">
     <div class="sec-head rv">
       <h2 class="sec-title">身份门户</h2>
-      <div class="sec-note">4 个平台 · 全部已验证</div>
+      <div class="sec-note">自动更新 · <span id="stamp-time">读取中</span></div>
     </div>
 
     <div class="grid g4">
@@ -245,9 +245,9 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
         </div>
         <p class="card__desc">I enjoy using AI to create small applications, especially for Android and Windows platforms, to make life easier.</p>
         <div class="card__stats">
-          <div class="st"><b>12</b><span>Repos</span></div>
-          <div class="st"><b>8</b><span>Stars</span></div>
-          <div class="st"><b>2</b><span>Followers</span></div>
+          <div class="st"><b data-stat="github.repos">12</b><span>Repos</span></div>
+          <div class="st"><b data-stat="github.stars">8</b><span>Stars</span></div>
+          <div class="st"><b data-stat="github.followers">2</b><span>Followers</span></div>
         </div>
       </a>
 
@@ -280,9 +280,9 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
         </div>
         <p class="card__desc">内容以游戏实录与鬼畜剪辑为主 —— 三角洲行动、Minecraft 服务器联机，随手记录。</p>
         <div class="card__stats">
-          <div class="st"><b>16</b><span>投稿</span></div>
-          <div class="st"><b>15</b><span>粉丝</span></div>
-          <div class="st"><b>246</b><span>关注</span></div>
+          <div class="st"><b data-stat="bilibili.videos">16</b><span>投稿</span></div>
+          <div class="st"><b data-stat="bilibili.fans">15</b><span>粉丝</span></div>
+          <div class="st"><b data-stat="bilibili.following">246</b><span>关注</span></div>
         </div>
       </a>
 
@@ -298,9 +298,9 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
         </div>
         <p class="card__desc">「爱用 AI 写东西的正常人」。简介里自指大号为 @可爱的硬币1145，并把 GitHub 主页挂在签名上。</p>
         <div class="card__stats">
-          <div class="st"><b>3</b><span>作品</span></div>
-          <div class="st"><b>68</b><span>获赞</span></div>
-          <div class="st"><b>8</b><span>粉丝</span></div>
+          <div class="st"><b data-stat="douyin_a.works">3</b><span>作品</span></div>
+          <div class="st"><b data-stat="douyin_a.likes">68</b><span>获赞</span></div>
+          <div class="st"><b data-stat="douyin_a.fans">8</b><span>粉丝</span></div>
         </div>
       </a>
 
@@ -316,9 +316,9 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
         </div>
         <p class="card__desc">「一个科技爱好者而已」。简介反向挂出 @zhonglike，与上一个账号互为印证。</p>
         <div class="card__stats">
-          <div class="st"><b>122</b><span>作品</span></div>
-          <div class="st"><b>670</b><span>获赞</span></div>
-          <div class="st"><b>70</b><span>粉丝</span></div>
+          <div class="st"><b data-stat="douyin_b.works">122</b><span>作品</span></div>
+          <div class="st"><b data-stat="douyin_b.likes">670</b><span>获赞</span></div>
+          <div class="st"><b data-stat="douyin_b.fans">70</b><span>粉丝</span></div>
         </div>
       </a>
 
@@ -411,9 +411,9 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
       <div class="card rv">
         <div class="sec-note">GitHub 总览</div>
         <div class="statgrid">
-          <div><b>7</b><span>原创仓库</span><p>另有 5 个 fork，已剔除</p></div>
-          <div><b>8</b><span>累计 Star</span><p>全部来自原创项目</p></div>
-          <div><b>2</b><span>Followers</span><p>关注 6 人</p></div>
+          <div><b data-stat="github.orig_repos">7</b><span>原创仓库</span><p>另有 5 个 fork，已剔除</p></div>
+          <div><b data-stat="github.stars">8</b><span>累计 Star</span><p>全部来自原创项目</p></div>
+          <div><b data-stat="github.followers">2</b><span>Followers</span><p>关注 6 人</p></div>
           <div><b>21 月</b><span>账号年龄</span><p>2024-12-27 至今</p></div>
         </div>
       </div>
@@ -528,6 +528,32 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
   }
   window.addEventListener('scroll', sync, {passive:true});
   sync();
+})();
+</script>
+<script>
+/* 实时数据：读取同目录 stats.json（由 GitHub Actions 定时刷新），
+   取不到则沿用页面里的静态兜底值，保证离线也能正常展示。 */
+(function(){
+  fetch('stats.json', {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(d){
+      document.querySelectorAll('[data-stat]').forEach(function(el){
+        var v = el.getAttribute('data-stat').split('.')
+          .reduce(function(o, k){ return (o === undefined || o === null) ? undefined : o[k]; }, d);
+        if(v !== undefined && v !== null) el.textContent = v;
+      });
+      var st = document.getElementById('stamp-time');
+      if(st && d.updated_at){
+        var dt = new Date(d.updated_at);
+        st.textContent = isNaN(dt.valueOf()) ? d.updated_at
+          : (dt.getMonth()+1) + '月' + dt.getDate() + '日 '
+            + ('0'+dt.getHours()).slice(-2) + ':' + ('0'+dt.getMinutes()).slice(-2);
+      }
+    })
+    .catch(function(){
+      var st = document.getElementById('stamp-time');
+      if(st) st.textContent = '静态快照';
+    });
 })();
 </script>
 </body>
