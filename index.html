@@ -245,7 +245,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
         </div>
         <p class="card__desc">I enjoy using AI to create small applications, especially for Android and Windows platforms, to make life easier.</p>
         <div class="card__stats">
-          <div class="st"><b data-stat="github.repos">12</b><span>Repos</span></div>
+          <div class="st"><b data-stat="github.repos">13</b><span>Repos</span></div>
           <div class="st"><b data-stat="github.stars">8</b><span>Stars</span></div>
           <div class="st"><b data-stat="github.followers">2</b><span>Followers</span></div>
         </div>
@@ -534,7 +534,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px}
 /* 实时数据：读取同目录 stats.json（由 GitHub Actions 定时刷新），
    取不到则沿用页面里的静态兜底值，保证离线也能正常展示。 */
 (function(){
-  fetch('stats.json', {cache:'no-store'})
+  fetch('data/stats.json', {cache:'no-store'})
     .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
     .then(function(d){
       document.querySelectorAll('[data-stat]').forEach(function(el){
