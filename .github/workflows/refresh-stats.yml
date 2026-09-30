@@ -1,0 +1,37 @@
+name: refresh-stats
+
+on:
+  schedule:
+    # 每 6 小时刷新一次（UTC 的第 17 分钟，避开整点高峰）
+    - cron: "17 */6 * * *"
+  workflow_dispatch:   # 允许在 Actions 页面手动点一次
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 抓取各平台数据
+        run: python scripts/refresh_stats.py
+
+      - name: 有变化时提交
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/stats.json
+          if git diff --quiet --cached; then
+            echo "数据无变化，跳过提交"
+          else
+            git commit -m "chore(stats): $(date -u +%Y-%m-%dT%H:%MZ) 定时刷新"
+            git push
+          fi
