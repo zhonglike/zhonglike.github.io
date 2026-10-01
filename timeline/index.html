@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>时间线 · zhonglike</title>
+<meta name="description" content="zhonglike 的构建痕迹 —— 从注册 GitHub 到两个游戏子站上线，关键节点与仓库创建记录。" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'" />
+<meta name="referrer" content="no-referrer" />
+<noscript><style>.rv{opacity:1!important;transform:none!important}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' fill='%23fff' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav__in">
+    <a class="nav__brand" href="/">zhonglike<span>/tech</span></a>
+    <div class="nav__links">
+      <a href="/" data-route="">门户</a>
+      <a href="/projects/" data-route="projects">项目</a>
+      <a href="/now/" data-route="now">动态</a>
+      <a href="/stack/" data-route="stack">技术栈</a>
+      <a href="/timeline/" data-route="timeline">时间线</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="crumb">
+    <a href="/">zhonglike.tech</a><span class="dot"></span><b>/timeline</b>
+    <em style="margin-left:auto">里程碑 + 仓库创建记录</em>
+  </div>
+
+  <header class="ph">
+    <div class="ph__t">时间线</div>
+    <p class="ph__d">
+      关键节点由人工整理，仓库创建记录由脚本自动补全到同一条轴上。最新在上。
+    </p>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">构建痕迹</h2>
+      <span class="sec-note" id="span">读取中</span>
+    </div>
+    <div class="tl" id="tl"></div>
+    <div class="sk" id="state">正在读取 data/timeline.json …</div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <p>© 2026 zhonglike · 唯一官方域名 zhonglike.tech</p>
+    <div class="foot__links">
+      <a href="https://github.com/zhonglike" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/projects/">项目库</a>
+      <a href="/now/">动态</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js"></script>
+<script>
+(function () {
+  var CAT = { game: '游戏', app: '应用', tool: '工具' };
+
+  /* 离线兜底：里程碑主线 + 主要仓库，保证断网也能看到完整叙事 */
+  var FALLBACK = [
+    { date:'2026-10-01', kind:'repo', title:'创建 farm-game', cat:'game', lang:'JavaScript',
+      desc:'开心农场 · 牧场经营 — QQ 农场式 网格点击 HTML5 游戏', site:'https://farm.zhonglike.tech' },
+    { date:'2026-10-01', kind:'milestone', title:'第二个游戏上线',
+      desc:'开心农场以 farm.zhonglike.tech 独立子域发布，HTML5 网格点击玩法。' },
+    { date:'2026-09-30', kind:'repo', title:'创建 silva-game', cat:'game', lang:'JavaScript',
+      desc:'SILVA 森语 — 类 LAAS 的全程序化 3D 开放世界探索游戏（HTML5/Three.js/WebGL）',
+      site:'https://gamesilva.zhonglike.tech' },
+    { date:'2026-09-30', kind:'milestone', title:'门户上线 · 第一个 3D 游戏开坑',
+      desc:'zhonglike.tech 经 GitHub Pages 上线；同日 SILVA 森语开坑，开始从工具转向游戏。' },
+    { date:'2026-09-27', kind:'milestone', title:'拿下 zhonglike.tech',
+      desc:'域名在阿里云万网注册，个人门户第一次有了固定的家。' },
+    { date:'2026-09-11', kind:'repo', title:'创建 xiaoai-agent-unlock', cat:'tool', lang:'PowerShell',
+      desc:'让小米笔记本专属的「超级小爱 / 小爱同学」PC 客户端跑在任意品牌电脑上' },
+    { date:'2026-08-21', kind:'milestone', title:'转向 Flutter 跨端',
+      desc:'虚拟陪伴与英文打字练习同期启动，一套代码同时产出 Windows 与 Android。' },
+    { date:'2026-08-21', kind:'repo', title:'创建 virtual-companion', cat:'app', lang:'Dart',
+      desc:'AI 虚拟陪伴聊天软件，三后端可选，日语 TTS，AI 主动消息。' },
+    { date:'2026-08-21', kind:'repo', title:'创建 enPractice', cat:'app', lang:'Dart',
+      desc:'仿金山打字通的英文打字练习工具，实时 WPM 与正确率统计。' },
+    { date:'2026-08-18', kind:'repo', title:'创建 AI-Debate', cat:'tool', lang:'Python',
+      desc:'本地多模型图形化辩论程序，加载多个 GGUF 模型自动多轮辩论，完全离线。' },
+    { date:'2026-06-29', kind:'repo', title:'创建 OCOS', cat:'app', lang:'JavaScript',
+      desc:'Electron 打造的开源伪桌面系统，任务栏、窗口管理器与虚拟桌面。' },
+    { date:'2026-06-27', kind:'repo', title:'创建 MyBlog', cat:'tool', lang:'JavaScript',
+      desc:'Node.js + Express + SQLite 自建博客，Markdown 写作与 AI 助手。' },
+    { date:'2026-06-27', kind:'repo', title:'创建 Local-Area-Network-Information-Transfer-Station', cat:'tool', lang:'Python',
+      desc:'LANITS — 电脑上复制，手机上自动收到，零配置 mDNS 发现。' },
+    { date:'2026-06-27', kind:'milestone', title:'开始做工具',
+      desc:'同一天开了两个仓库：自建博客 MyBlog 与局域网互传 LANITS，从「用 AI 做小应用」起步。' },
+    { date:'2024-12-27', kind:'milestone', title:'注册 GitHub',
+      desc:'账号 G-zhonglike 创建，此后所有项目的起点。' }
+  ];
+
+  var tl = document.getElementById('tl');
+  var state = document.getElementById('state');
+  var span = document.getElementById('span');
+
+  function row(e) {
+    var el = ZL.el('div', 'tl__i rv');
+    el.appendChild(ZL.el('div', 'tl__d', e.date || '—'));
+
+    var b = ZL.el('div');
+    var h = ZL.el('div', 'tl__h');
+    var txt = e.title;
+    if (e.url) {
+      var a = ZL.el('a', null, txt);
+      a.href = e.site || e.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      h.appendChild(a);
+    } else {
+      h.appendChild(document.createTextNode(txt));
+    }
+    var tag = ZL.el('span', 'ev__s', e.kind === 'milestone' ? '里程碑' : (CAT[e.cat] || e.lang || '仓库'));
+    tag.style.marginLeft = '8px';
+    h.appendChild(tag);
+    if (e.kind === 'repo' && e.lang) {
+      var lg = ZL.el('span', 'ev__s', e.lang);
+      lg.style.marginLeft = '6px';
+      h.appendChild(lg);
+    }
+    b.appendChild(h);
+    if (e.desc) b.appendChild(ZL.el('div', 'tl__p', e.desc));
+    el.appendChild(b);
+    return el;
+  }
+
+  function render(items) {
+    tl.innerHTML = '';
+    items.forEach(function (e) { tl.appendChild(row(e)); });
+
+    var dates = items.map(function (e) { return e.date; }).filter(Boolean).sort();
+    if (dates.length >= 2) {
+      var a = new Date(dates[0]), b2 = new Date(dates[dates.length - 1]);
+      var m = Math.max(0, Math.round((b2 - a) / 2592000000));
+      span.textContent = (m >= 12 ? Math.floor(m / 12) + ' 年 ' + (m % 12) + ' 个月' : m + ' 个月')
+        + ' · ' + items.length + ' 个节点';
+    } else {
+      span.textContent = items.length + ' 个节点';
+    }
+    state.textContent = items.filter(function (e) { return e.kind === 'milestone'; }).length
+      + ' 个里程碑 · ' + items.filter(function (e) { return e.kind === 'repo'; }).length + ' 个仓库';
+  }
+
+  ZL.json('/data/timeline.json')
+    .then(function (d) { render((d && d.items && d.items.length) ? d.items : FALLBACK); })
+    .catch(function () {
+      render(FALLBACK);
+      state.className = 'sk sk--err';
+      state.textContent = '离线模式：使用内置快照';
+    });
+})();
+</script>
+</body>
+</html>
