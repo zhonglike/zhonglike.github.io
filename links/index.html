@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>全部入口 · zhonglike</title>
+<meta name="description" content="zhonglike 的全部平台入口 —— GitHub / Steam / 哔哩哔哩 / 抖音 / 自建站点，一键直达。" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'" />
+<meta name="referrer" content="no-referrer" />
+<noscript><style>.rv{opacity:1!important;transform:none!important}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' fill='%23fff' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/assets/site.css" />
+<style>
+/* 入口页：更大的触控区，移动端优先 */
+.link{
+  display:flex;align-items:center;gap:15px;
+  padding:16px 18px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);transition:border-color .2s ease,background .2s ease;
+}
+.link:hover{border-color:var(--line-2);background:var(--panel-2)}
+.link__av{
+  width:48px;height:48px;border-radius:13px;flex:none;object-fit:cover;
+  background:#18181d;border:1px solid var(--line-2);
+}
+.link__logo{
+  width:48px;height:48px;border-radius:13px;flex:none;display:grid;place-items:center;
+  font-family:var(--mono);font-size:19px;font-weight:700;color:#fff;
+  background:#18181d;border:1px solid var(--line-2);
+}
+.link__b{flex:1;min-width:0}
+.link__n{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.link__p{font-family:var(--mono);font-size:10.5px;color:var(--fg-3);margin-top:3px;letter-spacing:.03em}
+.link__d{font-size:12.5px;color:var(--fg-2);margin-top:5px;line-height:1.5}
+.link__s{font-family:var(--mono);font-size:11px;color:var(--fg-3);text-align:right;flex:none;line-height:1.7}
+.link__s b{color:var(--fg);font-weight:600}
+.link__go{font-family:var(--mono);font-size:15px;color:var(--fg-3);flex:none;transition:color .2s ease}
+.link:hover .link__go{color:var(--fg)}
+@media (max-width:720px){
+  .link{padding:15px 16px;gap:13px}
+  .link__s{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav__in">
+    <a class="nav__brand" href="/">zhonglike<span>/tech</span></a>
+    <div class="nav__links">
+      <a href="/" data-route="">门户</a>
+      <a href="/projects/" data-route="projects">项目</a>
+      <a href="/now/" data-route="now">动态</a>
+      <a href="/stack/" data-route="stack">技术栈</a>
+      <a href="/timeline/" data-route="timeline">时间线</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="crumb">
+    <a href="/">zhonglike.tech</a><span class="dot"></span><b>/links</b>
+    <em style="margin-left:auto">自动更新 · <span id="stamp-time">读取中</span></em>
+  </div>
+
+  <header class="ph">
+    <div class="ph__t">全部入口</div>
+    <p class="ph__d">
+      所有平台账号与自建站点的一键直达。适合挂在社交账号简介里，手机上点哪都能开。
+    </p>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">平台账号</h2>
+      <span class="sec-note">6 个</span>
+    </div>
+    <div class="grid" id="accounts" style="gap:10px"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">自建站点</h2>
+      <span class="sec-note">zhonglike.tech 及其子域</span>
+    </div>
+    <div class="grid" id="sites" style="gap:10px"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">站内页面</h2>
+      <span class="sec-note">zhonglike.tech</span>
+    </div>
+    <div class="grid" style="gap:10px">
+      <a class="link rv" href="/projects/">
+        <div class="link__logo">/</div>
+        <div class="link__b">
+          <div class="link__n">项目库</div>
+          <div class="link__p">Zhonglike.tech / PROJECTS</div>
+          <div class="link__d"><span data-stat="github.orig_repos">9</span> 个原创项目，含 README 文档</div>
+        </div>
+        <div class="link__go">↗</div>
+      </a>
+      <a class="link rv" href="/now/">
+        <div class="link__logo">/</div>
+        <div class="link__b">
+          <div class="link__n">动态</div>
+          <div class="link__p">Zhonglike.tech / NOW</div>
+          <div class="link__d">各平台公开活动按时间倒序聚合</div>
+        </div>
+        <div class="link__go">↗</div>
+      </a>
+      <a class="link rv" href="/stack/">
+        <div class="link__logo">/</div>
+        <div class="link__b">
+          <div class="link__n">技术栈</div>
+          <div class="link__p">Zhonglike.tech / STACK</div>
+          <div class="link__d">语言分布与工具链</div>
+        </div>
+        <div class="link__go">↗</div>
+      </a>
+      <a class="link rv" href="/timeline/">
+        <div class="link__logo">/</div>
+        <div class="link__b">
+          <div class="link__n">时间线</div>
+          <div class="link__p">Zhonglike.tech / TIMELINE</div>
+          <div class="link__d">从注册 GitHub 到现在</div>
+        </div>
+        <div class="link__go">↗</div>
+      </a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <p>© 2026 zhonglike · 唯一官方域名 zhonglike.tech</p>
+    <div class="foot__links">
+      <a href="/">门户</a>
+      <a href="/projects/">项目库</a>
+      <a href="/now/">动态</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js"></script>
+<script>
+(function () {
+  var box = document.getElementById('accounts');
+  var sites = document.getElementById('sites');
+
+  /* 离线兜底：顺序即展示顺序 */
+  var ACCOUNTS = [
+    { k:'github', logo:'G', name:'G-zhonglike', plat:'GITHUB · @ZHONGLIKE',
+      desc:'12 仓库 · 9 原创 · 8 Star', stat:['github.orig_repos','github.stars'],
+      url:'https://github.com/zhonglike', avatar:'github.avatar' },
+    { k:'bilibili', logo:'B', name:'可爱的硬币1145', plat:'BILIBILI · UID 3493271126935853',
+      desc:'16 投稿 · 15 粉丝', stat:['bilibili.videos','bilibili.fans'],
+      url:'https://space.bilibili.com/3493271126935853', avatar:'bilibili.face' },
+    { k:'douyin_b', logo:'D', name:'可爱的硬币1145', plat:'抖音 · 32304602756',
+      desc:'122 作品 · 670 获赞 · 70 粉丝', stat:['douyin_b.works','douyin_b.likes','douyin_b.fans'],
+      url:'https://www.douyin.com/user/MS4wLjABAAAA5J8q0yjNvN2gPwe9WgMGsHBjkQOs_iPEKVBcFobpgQyBSyikwbABUDuaGJC1pIXg' },
+    { k:'douyin_a', logo:'D', name:'zhonglike', plat:'抖音 · ZHONGLIKE',
+      desc:'3 作品 · 68 获赞 · 8 粉丝', stat:['douyin_a.works','douyin_a.likes','douyin_a.fans'],
+      url:'https://www.douyin.com/user/MS4wLjABAAAAocDV9OG3ChdHJefUldaCZGRAWjlqFJUej-JnA3fbJHbdzcdHvUbc75k6V21p66HT' },
+    { k:'steam', logo:'S', name:'Cozy', plat:'STEAM · /ID/JOHNHAN',
+      desc:'资料仅好友可见 · 0 VAC 封禁', url:'https://steamcommunity.com/id/johnhan' },
+    { k:'google', logo:'G', name:'John Han', plat:'GOOGLE · JOHNHAN',
+      desc:'无公开主页，仅作身份登记', url:'' }
+  ];
+
+  var LABEL = { 'github.orig_repos':'仓库', 'github.stars':'Star',
+                'bilibili.videos':'投稿', 'bilibili.fans':'粉丝',
+                'douyin_a.works':'作品', 'douyin_a.likes':'获赞', 'douyin_a.fans':'粉丝',
+                'douyin_b.works':'作品', 'douyin_b.likes':'获赞', 'douyin_b.fans':'粉丝' };
+
+  function pick(d, path) {
+    if (!d) return undefined;
+    return String(path).split('.').reduce(function (o, k) {
+      return (o === undefined || o === null) ? undefined : o[k];
+    }, d);
+  }
+
+  function render(d) {
+    box.innerHTML = '';
+    ACCOUNTS.forEach(function (a) {
+      var el = ZL.el(a.url ? 'a' : 'div', 'link rv');
+      if (a.url) { el.href = a.url; el.target = '_blank'; el.rel = 'noopener noreferrer'; }
+
+      var av = a.avatar ? pick(d, a.avatar) : null;
+      if (av) {
+        var img = ZL.el('img', 'link__av');
+        img.src = av; img.alt = a.name; img.loading = 'lazy';
+        img.setAttribute('referrerpolicy', 'no-referrer');
+        el.appendChild(img);
+      } else {
+        el.appendChild(ZL.el('div', 'link__logo', a.logo));
+      }
+
+      var b = ZL.el('div', 'link__b');
+      b.appendChild(ZL.el('div', 'link__n', a.name));
+      b.appendChild(ZL.el('div', 'link__p', a.plat));
+      b.appendChild(ZL.el('div', 'link__d', a.desc));
+      el.appendChild(b);
+
+      if (a.stat && d) {
+        var s = ZL.el('div', 'link__s');
+        a.stat.forEach(function (k) {
+          var v = pick(d, k);
+          if (v === undefined || v === null) return;
+          var row = ZL.el('div');
+          row.appendChild(ZL.el('b', null, String(v)));
+          row.appendChild(document.createTextNode(' ' + (LABEL[k] || '')));
+          s.appendChild(row);
+        });
+        if (s.children.length) el.appendChild(s);
+      }
+
+      if (a.url) el.appendChild(ZL.el('div', 'link__go', '↗'));
+      else {
+        var t = ZL.el('div', 'link__go', '—');
+        t.style.opacity = '.45';
+        el.appendChild(t);
+      }
+      box.appendChild(el);
+    });
+
+    var ss = (d && d.sites) || [
+      { host:'zhonglike.tech', name:'hub', desc:'身份聚合与项目索引', url:'https://zhonglike.tech' },
+      { host:'farm.zhonglike.tech', name:'farm-game', desc:'开心农场 · HTML5 游戏', url:'https://farm.zhonglike.tech' },
+      { host:'gamesilva.zhonglike.tech', name:'silva-game', desc:'SILVA 森语 · 3D 开放世界', url:'https://gamesilva.zhonglike.tech' }
+    ];
+    sites.innerHTML = '';
+    ss.forEach(function (s) {
+      var el = ZL.el('a', 'link rv');
+      el.href = s.url; el.target = '_blank'; el.rel = 'noopener noreferrer';
+      el.appendChild(ZL.el('div', 'link__logo', s.kind === 'hub' ? 'Z' : (s.kind === 'game' ? 'G' : 'A')));
+      var b = ZL.el('div', 'link__b');
+      b.appendChild(ZL.el('div', 'link__n', s.host));
+      b.appendChild(ZL.el('div', 'link__p', (s.name || '').toUpperCase()));
+      b.appendChild(ZL.el('div', 'link__d', s.desc || ''));
+      el.appendChild(b);
+      el.appendChild(ZL.el('div', 'link__go', '↗'));
+      sites.appendChild(el);
+    });
+  }
+
+  ZL.json('/data/stats.json')
+    .then(render)
+    .catch(function () { render(null); });
+})();
+</script>
+</body>
+</html>
