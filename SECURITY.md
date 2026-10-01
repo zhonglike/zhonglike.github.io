@@ -1,6 +1,6 @@
 # zhonglike.tech 安全加固清单
 
-威胁模型判断：本站是**纯静态单文件**，无后端、无数据库、无表单、无第三方脚本。
+威胁模型判断：本站是**纯静态多页站点**（7 个页面 + 404），无后端、无数据库、无表单、无第三方脚本。
 因此 SQL 注入 / 命令注入 / XSS 服务端链路**不适用**，真正的高危面排在下面。
 
 ---
@@ -11,13 +11,54 @@
 | --- | --- | --- |
 | CSP 元标签 | ✅ | `default-src 'none'`，只放行内联样式脚本与 data: 图片，其余全禁。后续若引入第三方脚本会被直接阻断 |
 | Referrer-Policy | ✅ | `no-referrer`，外链不泄露来源 |
-| 外部请求归零 | ✅ | 头像是 base64 内联，无 CDN、无字体、无统计脚本 |
+| 外部请求极少 | ✅ | 无 CDN / 无字体 / 无统计脚本；仅同源 `data/*.json` 与少量平台头像（GitHub / B站）走 https |
 | `rel="noopener noreferrer"` | ✅ | 全部外链已加，防 `window.opener` 反向控制 |
 | noscript 兜底 | ✅ | 禁用 JS 时内容照常显示（原先会整页空白） |
 | 声明唯一官方域名 | ✅ | 页脚标注，反钓鱼仿冒 |
 
 > 注意：GitHub Pages **不允许自定义响应头**，所以 HSTS、`X-Content-Type-Options`、
 > `X-Frame-Options` 这类**响应头级**防护只能通过 Cloudflare 或 Cloudflare Pages 实现。
+
+---
+
+## 证书台账（2026-10-01 登记）
+
+已申请到 `zhonglike.tech` 的 DV 证书（DigiCert 颁发），但**当前架构用不上**，原因见下。
+
+| 项 | 值 |
+| --- | --- |
+| 颁发对象 | `CN=zhonglike.tech` |
+| SAN | `zhonglike.tech`、`www.zhonglike.tech` |
+| 颁发机构 | DigiCert `Encryption Everywhere DV TLS CA - G2` |
+| 有效期 | 2026-10-01 → **2027-04-01**（6 个月，免费证书） |
+| 私钥 | RSA 2048 位，与证书配对已验证一致 |
+| 格式 | PEM（证书链 2 段）+ KEY；另有 JKS（Tomcat 用，密码见下载包内 txt） |
+
+### ⚠️ 为什么现在用不上
+
+**GitHub Pages 不支持上传自定义证书。** 自定义域名的 HTTPS 只能由 GitHub 通过
+Let's Encrypt 自动签发，控制台没有上传入口 —— 这份 DigiCert 证书在当前托管架构下无处可用。
+
+同理，Cloudflare Free 也不支持上传自定义证书（需 Business 以上的 Advanced Certificate
+Manager），Vercel / Netlify 同样是平台自动签发。
+
+### 三条可选路径
+
+| 方案 | 这份证书 | 代价 |
+| --- | --- | --- |
+| 继续 GitHub Pages，等自动签发 | ❌ 闲置 | 零成本，但要等 GitHub 完成签发 |
+| 迁 Cloudflare | ❌ 用 CF 自己的证书 | NS 改到 CF，HTTPS 立刻可用；国内访问可能变慢 |
+| 自建服务器 / VPS | ✅ 可以用 | 需公网服务器；境内服务器还需 ICP 备案 |
+
+**当前建议**：维持 GitHub Pages 等待自动签发。DNS 已完全正确、无 CAA 限制，通常 24h 内完成；
+签好后跑一次 `scripts/../enforce_https.py` 即可开启强制 HTTPS 跳转。
+
+### 🔴 私钥保管红线
+
+- `zhonglike.tech.key` **绝不能**提交进任何 Git 仓库，也不要放进 `zhonglike-portal/` 或 `deploy-zhonglike-tech/`
+- 不要截图私钥、不要贴进聊天窗口、不要上传到网盘
+- 已核查：工作区内不含任何私钥文件
+- 2027-03 起需关注到期；若届时仍在 GitHub Pages 则无需任何操作（平台自动续期）
 
 ---
 
