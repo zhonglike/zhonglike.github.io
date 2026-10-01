@@ -1,0 +1,131 @@
+{
+  "updated_at": "2026-10-01T21:48:11+08:00",
+  "items": [
+    {
+      "date": "2026-10-01",
+      "kind": "repo",
+      "title": "创建 farm-game",
+      "desc": "开心农场·牧场经营 - QQ农场式逐格点击 HTML5 游戏",
+      "lang": "JavaScript",
+      "cat": "game",
+      "url": "https://github.com/zhonglike/farm-game",
+      "site": "https://farm.zhonglike.tech"
+    },
+    {
+      "date": "2026-10-01",
+      "kind": "milestone",
+      "title": "第二个游戏上线",
+      "desc": "开心农场以 farm.zhonglike.tech 独立子域发布，HTML5 网格点击玩法。"
+    },
+    {
+      "date": "2026-09-30",
+      "kind": "repo",
+      "title": "创建 silva-game",
+      "desc": "SILVA 森语 — 类 LAAS 的全程序化 3D 开放世界探索游戏（HTML5/Three.js/WebGL）",
+      "lang": "JavaScript",
+      "cat": "game",
+      "url": "https://github.com/zhonglike/silva-game",
+      "site": "https://gamesilva.zhonglike.tech"
+    },
+    {
+      "date": "2026-09-30",
+      "kind": "milestone",
+      "title": "门户上线 · 第一个 3D 游戏开坑",
+      "desc": "zhonglike.tech 经 GitHub Pages 上线；同日 SILVA 森语开坑，开始从工具转向游戏。"
+    },
+    {
+      "date": "2026-09-27",
+      "kind": "milestone",
+      "title": "拿下 zhonglike.tech",
+      "desc": "域名在阿里云万网注册，个人门户第一次有了固定的家。"
+    },
+    {
+      "date": "2026-09-11",
+      "kind": "repo",
+      "title": "创建 xiaoai-agent-unlock",
+      "desc": "让小米笔记本专属的 超级小爱/小爱同学 PC 客户端跑在任意品牌电脑上 | Run Xiaomi Super Xiao AI PC clie",
+      "lang": "PowerShell",
+      "cat": "tool",
+      "url": "https://github.com/zhonglike/xiaoai-agent-unlock",
+      "site": null
+    },
+    {
+      "date": "2026-08-21",
+      "kind": "repo",
+      "title": "创建 virtual-companion",
+      "desc": "🐳 虚拟陪伴 (Virtual Companion) — AI 恋爱聊天软件。DeepSeek / OpenAI 兼容 / 本地 Ollam",
+      "lang": "Dart",
+      "cat": "app",
+      "url": "https://github.com/zhonglike/virtual-companion",
+      "site": null
+    },
+    {
+      "date": "2026-08-21",
+      "kind": "repo",
+      "title": "创建 enPractice",
+      "desc": "enPractice 英文打字练习 - typing tutor 仿金山打字通. Flutter 逐行逐字打字练习, WPM/正确率统计, ",
+      "lang": "Dart",
+      "cat": "app",
+      "url": "https://github.com/zhonglike/enPractice",
+      "site": null
+    },
+    {
+      "date": "2026-08-21",
+      "kind": "milestone",
+      "title": "转向 Flutter 跨端",
+      "desc": "虚拟陪伴与英文打字练习同期启动，一套代码同时产出 Windows 与 Android。"
+    },
+    {
+      "date": "2026-08-18",
+      "kind": "repo",
+      "title": "创建 AI-Debate",
+      "desc": "AI辩论 - 本地多模型图形化辩论程序：加载多个本地大语言模型(GGUF)，分配正方/反方阵营自动多轮辩论，由用户评判胜负。完全离线，不调用",
+      "lang": "Python",
+      "cat": "tool",
+      "url": "https://github.com/zhonglike/AI-Debate",
+      "site": null
+    },
+    {
+      "date": "2026-06-29",
+      "kind": "repo",
+      "title": "创建 OCOS",
+      "desc": "✨ OCOS — open-source pseudo-OS built with Electron. 🖥️ Full-screen des",
+      "lang": "JavaScript",
+      "cat": "app",
+      "url": "https://github.com/zhonglike/OCOS",
+      "site": null
+    },
+    {
+      "date": "2026-06-27",
+      "kind": "repo",
+      "title": "创建 Local-Area-Network-Information-Transfer-Station",
+      "desc": "🚀 LANITS — copy on PC, auto on phone. Copy on phone, auto on PC. 📋 Sen",
+      "lang": "Python",
+      "cat": "tool",
+      "url": "https://github.com/zhonglike/Local-Area-Network-Information-Transfer-Station",
+      "site": null
+    },
+    {
+      "date": "2026-06-27",
+      "kind": "repo",
+      "title": "创建 MyBlog",
+      "desc": "🚀 Self-hosted personal blog — Node.js + Express + SQLite. 📝 Markdown p",
+      "lang": "JavaScript",
+      "cat": "tool",
+      "url": "https://github.com/zhonglike/MyBlog",
+      "site": null
+    },
+    {
+      "date": "2026-06-27",
+      "kind": "milestone",
+      "title": "开始做工具",
+      "desc": "同一天开了两个仓库：自建博客 MyBlog 与局域网互传 LANITS，从「用 AI 做小应用」起步。"
+    },
+    {
+      "date": "2024-12-27",
+      "kind": "milestone",
+      "title": "注册 GitHub",
+      "desc": "账号 G-zhonglike 创建，此后所有项目的起点。"
+    }
+  ]
+}
