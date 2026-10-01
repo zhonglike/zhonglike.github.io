@@ -238,6 +238,17 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px;margin-top:24px}
 .rv{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
 .rv.in{opacity:1;transform:none}
 
+/* ================= 打印（简历用途） ================= */
+@media print{
+  :root{--bg:#fff;--fg:#000;--fg-2:#333;--fg-3:#666;--line:#ddd;--line-2:#bbb;--panel:#fff;--panel-2:#f6f6f6}
+  body{background:#fff;color:#000;font-size:12px}
+  .nav,footer,.crumb,.no-print{display:none!important}
+  .rv{opacity:1!important;transform:none!important}
+  section{padding:18px 0;border-top:1px solid #ddd;page-break-inside:avoid}
+  .rm{max-height:none;overflow:visible}
+  a[href^="http"]::after{content:" · " attr(href);font-family:var(--mono);font-size:9px;color:#666}
+}
+
 /* ================= 响应式 ================= */
 @media (max-width:720px){
   .wrap{padding:0 20px}
@@ -247,8 +258,11 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px;margin-top:24px}
   .ph__t{font-size:24px}
   .hero__id h1{font-size:30px}
   .nav__in{gap:16px}
-  .nav__links{gap:13px}
-  .nav__links a{font-size:11.5px}
+  /* tab 变多后手机上横向滚动，不挤压也不换行 */
+  .nav__links{gap:13px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;-ms-overflow-style:none}
+  .nav__links::-webkit-scrollbar{display:none}
+  .nav__links a{font-size:11.5px;white-space:nowrap}
   .tl__i{grid-template-columns:1fr;gap:6px}
   .ev{grid-template-columns:1fr;gap:8px}
   .ev__i{display:none}
