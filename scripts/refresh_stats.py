@@ -230,6 +230,9 @@ def fetch_github():
     except Exception as e:
         warn("github events: %s" % e)
 
+    if events:
+        gh["last_activity"] = max(e["at"] for e in events)[:10]
+
     # 站点矩阵：门户主站 + 所有已上线 Pages 子站
     stats["sites"] = [{"name": "门户主站", "host": "zhonglike.tech",
                        "url": "https://zhonglike.tech", "desc": "身份聚合与项目索引", "kind": "hub"}] + [
