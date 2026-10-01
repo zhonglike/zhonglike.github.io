@@ -36,6 +36,16 @@ DOUYIN = [
 ]
 BILI_MID = "3493271126935853"
 
+# 手工里程碑：时间线的叙事主线，仓库创建节点由脚本自动补全到同一条轴上
+MILESTONES = [
+    ("2024-12-27", "注册 GitHub", "账号 G-zhonglike 创建，此后所有项目的起点。"),
+    ("2026-06-27", "开始做工具", "同一天开了两个仓库：自建博客 MyBlog 与局域网互传 LANITS，从「用 AI 做小应用」起步。"),
+    ("2026-08-21", "转向 Flutter 跨端", "虚拟陪伴与英文打字练习同期启动，一套代码同时产出 Windows 与 Android。"),
+    ("2026-09-27", "拿下 zhonglike.tech", "域名在阿里云万网注册，个人门户第一次有了固定的家。"),
+    ("2026-09-30", "门户上线 · 第一个 3D 游戏开坑", "zhonglike.tech 经 GitHub Pages 上线；同日 SILVA 森语开坑，开始从工具转向游戏。"),
+    ("2026-10-01", "第二个游戏上线", "开心农场以 farm.zhonglike.tech 独立子域发布，HTML5 网格点击玩法。"),
+]
+
 log = []
 
 
@@ -232,6 +242,22 @@ def fetch_github():
 
     if events:
         gh["last_activity"] = max(e["at"] for e in events)[:10]
+
+    # 时间线：手工里程碑 + 仓库创建节点自动补全
+    tl = []
+    for it in items:
+        if not it.get("created"):
+            continue
+        tl.append({"date": it["created"], "kind": "repo",
+                   "title": "创建 " + it["name"],
+                   "desc": (it.get("desc") or "")[:70],
+                   "lang": it.get("lang"), "cat": it.get("cat"),
+                   "url": it.get("url"), "site": it.get("site")})
+    for date, title, desc in MILESTONES:
+        tl.append({"date": date, "kind": "milestone", "title": title, "desc": desc})
+    tl.sort(key=lambda x: x["date"], reverse=True)
+    save("timeline.json", {"updated_at": NOW, "items": tl})
+    ok("timeline: %d 节点" % len(tl))
 
     # 站点矩阵：门户主站 + 所有已上线 Pages 子站
     stats["sites"] = [{"name": "门户主站", "host": "zhonglike.tech",
