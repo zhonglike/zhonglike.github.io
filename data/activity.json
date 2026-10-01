@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-01T21:20:43+08:00",
+  "updated_at": "2026-10-01T21:48:11+08:00",
   "items": [
     {
       "src": "github",
@@ -168,6 +168,78 @@
       "extra": "",
       "url": "https://github.com/CSneko/JustARod",
       "at": "2026-09-08T02:40:29Z"
+    },
+    {
+      "src": "bilibili",
+      "kind": "video",
+      "title": "听说换个音乐会火",
+      "extra": "#三角洲行动#三角洲S7阿萨拉新赛季",
+      "url": "https://www.bilibili.com/video/BV1hkzdBzEb4",
+      "at": "2026-01-29T09:35:30+08:00",
+      "plays": 83
+    },
+    {
+      "src": "bilibili",
+      "kind": "video",
+      "title": "有人可以陪作者一起玩吗，作者的朋友们都不玩Java版，但是我有一个30人的服务器，只要不搞破坏 都可以来作者这里来，离线账户可进，正版账号可进，自由聊天没有受限",
+      "extra": "-",
+      "url": "https://www.bilibili.com/video/BV1VYh1zjEVq",
+      "at": "2025-08-28T16:57:24+08:00",
+      "plays": 5
+    },
+    {
+      "src": "bilibili",
+      "kind": "video",
+      "title": "鬼畜作品",
+      "extra": "有元首",
+      "url": "https://www.bilibili.com/video/BV1vZAheLEBG",
+      "at": "2025-02-18T19:22:28+08:00",
+      "plays": 93
+    },
+    {
+      "src": "bilibili",
+      "kind": "video",
+      "title": "六百六十六，盐都不盐了",
+      "extra": "-",
+      "url": "https://www.bilibili.com/video/BV17FAVewEVU",
+      "at": "2025-02-16T17:32:23+08:00",
+      "plays": 71
+    },
+    {
+      "src": "bilibili",
+      "kind": "video",
+      "title": "win12.1PPT 内核改",
+      "extra": "需要的话请到： OneDrive：https://1drv.ms/p/c/e2430e35e0d6fd6c/EWz91uA1DkMggOKqAAAAAAABPS",
+      "url": "https://www.bilibili.com/video/BV1QdF6eoEPY",
+      "at": "2025-02-02T14:46:24+08:00",
+      "plays": 79
+    },
+    {
+      "src": "bilibili",
+      "kind": "video",
+      "title": "丸辣！",
+      "extra": "唔",
+      "url": "https://www.bilibili.com/video/BV1Eyw3e8E2n",
+      "at": "2025-01-16T15:47:42+08:00",
+      "plays": 396
+    },
+    {
+      "src": "bilibili",
+      "kind": "video",
+      "title": "枪械催眠 2",
+      "extra": "一只野生 up",
+      "url": "https://www.bilibili.com/video/BV1xscveqEpw",
+      "at": "2025-01-15T09:51:03+08:00",
+      "plays": 162
+    },
+    {
+      "src": "bilibili",
+      "kind": "video",
+      "title": "枪身催眠 8 分钟",
+      "extra": "-这是一只野生 UP 猪发的野生枪械催眠（八宝粥）视频，会更新，求点赞",
+      "url": "https://www.bilibili.com/video/BV1DqcweJEW4",
+      "at": "2025-01-11T22:38:12+08:00",
+      "plays": 297
     }
   ]
 }
