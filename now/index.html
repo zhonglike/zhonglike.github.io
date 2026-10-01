@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>动态 · zhonglike</title>
+<meta name="description" content="zhonglike 的实时动态流 —— GitHub 提交与开源动作、B站投稿、抖音数据快照。" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'" />
+<meta name="referrer" content="no-referrer" />
+<noscript><style>.rv{opacity:1!important;transform:none!important}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' fill='%23fff' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav__in">
+    <a class="nav__brand" href="/">zhonglike<span>/tech</span></a>
+    <div class="nav__links">
+      <a href="/" data-route="">门户</a>
+      <a href="/projects/" data-route="projects">项目</a>
+      <a href="/now/" data-route="now">动态</a>
+      <a href="/stack/" data-route="stack">技术栈</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="crumb">
+    <a href="/">zhonglike.tech</a><span class="dot"></span><b>/now</b>
+    <em style="margin-left:auto">自动更新 · <span id="stamp-time">读取中</span></em>
+  </div>
+
+  <header class="ph">
+    <div class="ph__t">动态</div>
+    <p class="ph__d">
+      各平台的公开活动按时间倒序聚合。数据由定时任务抓取，门户站自身的维护提交已过滤。
+    </p>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">活动流</h2>
+      <span class="sec-note">GitHub · 哔哩哔哩 · 抖音</span>
+    </div>
+    <div class="stream" id="stream"></div>
+    <div class="sk" id="state">正在读取 data/activity.json …</div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">平台快照</h2>
+      <span class="sec-note">最新一次成功抓取的数值</span>
+    </div>
+    <div class="statgrid">
+      <div>
+        <b data-stat="github.orig_repos">9</b><span>原创仓库</span>
+        <p>GitHub @zhonglike，不含 fork</p>
+      </div>
+      <div>
+        <b data-stat="github.stars">8</b><span>Stars</span>
+        <p>全部原创仓库累计</p>
+      </div>
+      <div>
+        <b data-stat="bilibili.videos">16</b><span>B站投稿</span>
+        <p><span data-stat="bilibili.fans">15</span> 粉丝 · UID 3493271126935853</p>
+      </div>
+      <div>
+        <b data-stat="douyin_b.works">122</b><span>抖音作品</span>
+        <p><span data-stat="douyin_b.fans">70</span> 粉丝 · <span data-stat="douyin_b.likes">670</span> 获赞</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>数据边界：</b>B 站投稿列表接口需要 wbi 签名，当前只能取到总数，详情页暂不列出单条视频；
+      抖音作品列表同样需要设备签名，此处仅展示账号数值快照。两者都不做推测填充。
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <p>© 2026 zhonglike · 唯一官方域名 zhonglike.tech</p>
+    <div class="foot__links">
+      <a href="https://github.com/zhonglike" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/projects/">项目库</a>
+      <a href="/stack/">技术栈</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js"></script>
+<script>
+(function () {
+  var SRC = { github: { i: 'GH', n: 'GitHub' }, bilibili: { i: 'BL', n: '哔哩哔哩' }, douyin: { i: 'DY', n: '抖音' } };
+  var stream = document.getElementById('stream');
+  var state = document.getElementById('state');
+
+  function row(e) {
+    var s = SRC[e.src] || { i: '··', n: e.src || '' };
+    var el = ZL.el('article', 'ev rv');
+
+    el.appendChild(ZL.el('div', 'ev__d', ZL.ymd(e.at) || '—'));
+    el.appendChild(ZL.el('div', 'ev__i', s.i));
+
+    var b = ZL.el('div', 'ev__b');
+    var t = ZL.el('div', 'ev__t');
+    if (e.url) {
+      var a = ZL.el('a', null, e.title);
+      a.href = e.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      t.appendChild(a);
+    } else {
+      t.textContent = e.title;
+    }
+    b.appendChild(t);
+
+    if (e.extra) {
+      var x = ZL.el('div');
+      x.style.cssText = 'font-family:var(--mono);font-size:11.5px;color:var(--fg-3);margin-top:4px;word-break:break-word';
+      x.textContent = e.extra;
+      b.appendChild(x);
+    }
+
+    var m = ZL.el('div', 'ev__m');
+    m.appendChild(ZL.el('span', 'ev__s', s.n));
+    if (e.kind) m.appendChild(ZL.el('span', null, e.kind));
+    var ago = ZL.ago(e.at);
+    if (ago) m.appendChild(ZL.el('span', null, ago));
+    b.appendChild(m);
+
+    el.appendChild(b);
+    return el;
+  }
+
+  ZL.json('/data/activity.json')
+    .then(function (d) {
+      var items = (d && d.items) || [];
+      if (!items.length) {
+        state.textContent = '暂无活动记录';
+        return;
+      }
+      stream.innerHTML = '';
+      items.forEach(function (e) { stream.appendChild(row(e)); });
+      state.textContent = items.length + ' 条记录';
+    })
+    .catch(function () {
+      state.className = 'sk sk--err';
+      state.textContent = '动态数据暂时无法加载，请稍后重试或直接访问 GitHub 主页。';
+    });
+})();
+</script>
+</body>
+</html>
