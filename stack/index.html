@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>技术栈 · zhonglike</title>
+<meta name="description" content="zhonglike 的技术栈与语言分布 —— Flutter、Python、Node.js、Three.js 与本地大模型。" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'" />
+<meta name="referrer" content="no-referrer" />
+<noscript><style>.rv{opacity:1!important;transform:none!important}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' fill='%23fff' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav__in">
+    <a class="nav__brand" href="/">zhonglike<span>/tech</span></a>
+    <div class="nav__links">
+      <a href="/" data-route="">门户</a>
+      <a href="/projects/" data-route="projects">项目</a>
+      <a href="/now/" data-route="now">动态</a>
+      <a href="/stack/" data-route="stack">技术栈</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="crumb">
+    <a href="/">zhonglike.tech</a><span class="dot"></span><b>/stack</b>
+    <em style="margin-left:auto">自动更新 · <span id="stamp-time">读取中</span></em>
+  </div>
+
+  <header class="ph">
+    <div class="ph__t">技术栈</div>
+    <p class="ph__d">
+      语言占比取自各原创仓库的实际代码字节数，由 GitHub 统计；工具链根据项目中真实使用的技术整理。
+    </p>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">语言分布</h2>
+      <span class="sec-note">按代码字节 · <span data-stat="github.orig_repos">9</span> 个原创仓库</span>
+    </div>
+    <div id="langs"></div>
+    <div class="sk" id="langstate">正在读取 data/stats.json …</div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">工具链</h2>
+      <span class="sec-note">按用途分组</span>
+    </div>
+    <div class="grid g3">
+
+      <div class="card rv">
+        <div class="card__head">
+          <div class="card__logo">F</div>
+          <div>
+            <div class="card__name">跨端应用</div>
+            <div class="card__plat">FLUTTER · DART</div>
+          </div>
+        </div>
+        <p class="card__desc">
+          单代码库同时产出 Windows exe 与 Android apk，是做小工具的主力方案。
+          虚拟陪伴与英文打字练习都走的这条路。
+        </p>
+      </div>
+
+      <div class="card rv">
+        <div class="card__head">
+          <div class="card__logo">3</div>
+          <div>
+            <div class="card__name">图形与游戏</div>
+            <div class="card__plat">THREE.JS · WEBGL · HTML5</div>
+          </div>
+        </div>
+        <p class="card__desc">
+          SILVA 森语用 Three.js 做全程序化 3D 开放世界，开心农场用 HTML5 网格点击玩法 —— 都直接跑在浏览器里。
+        </p>
+      </div>
+
+      <div class="card rv">
+        <div class="card__head">
+          <div class="card__logo">E</div>
+          <div>
+            <div class="card__name">桌面外壳</div>
+            <div class="card__plat">ELECTRON · NODE.JS</div>
+          </div>
+        </div>
+        <p class="card__desc">
+          OCOS 伪桌面系统：任务栏、窗口管理器、虚拟桌面与内置应用全家桶，中英双语多主题。
+        </p>
+      </div>
+
+      <div class="card rv">
+        <div class="card__head">
+          <div class="card__logo">P</div>
+          <div>
+            <div class="card__name">脚本与服务端</div>
+            <div class="card__plat">PYTHON · EXPRESS · SQLITE</div>
+          </div>
+        </div>
+        <p class="card__desc">
+          LANITS 局域网互传走 Python 零配置传输，MyBlog 用 Express + SQLite 自建博客，JWT 鉴权加二级密码。
+        </p>
+      </div>
+
+      <div class="card rv">
+        <div class="card__head">
+          <div class="card__logo">A</div>
+          <div>
+            <div class="card__name">本地大模型</div>
+            <div class="card__plat">OLLAMA · GGUF · OFFLINE</div>
+          </div>
+        </div>
+        <p class="card__desc">
+          AI-Debate 同时加载多个 GGUF 本地模型自动辩论，完全离线不调远程 API；
+          其余项目也支持在 DeepSeek / OpenAI 兼容接口与本地后端之间切换。
+        </p>
+      </div>
+
+      <div class="card rv">
+        <div class="card__head">
+          <div class="card__logo">W</div>
+          <div>
+            <div class="card__name">系统级折腾</div>
+            <div class="card__plat">POWERSHELL · WINDOWS</div>
+          </div>
+        </div>
+        <p class="card__desc">
+          xiaoai-agent-unlock 用 PowerShell 解除小米 PC 客户端的机型白名单校验，让它跑在任意品牌电脑上。
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">在线站点</h2>
+      <span class="sec-note">已部署并绑定域名</span>
+    </div>
+    <div class="grid g3" id="sites"></div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <p>© 2026 zhonglike · 唯一官方域名 zhonglike.tech</p>
+    <div class="foot__links">
+      <a href="https://github.com/zhonglike" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/projects/">项目库</a>
+      <a href="/now/">动态</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js"></script>
+<script>
+(function () {
+  var langs = document.getElementById('langs');
+  var state = document.getElementById('langstate');
+  var sites = document.getElementById('sites');
+
+  function kb(n) {
+    if (n >= 1048576) return (n / 1048576).toFixed(1) + ' MB';
+    if (n >= 1024) return Math.round(n / 1024) + ' KB';
+    return n + ' B';
+  }
+
+  ZL.json('/data/stats.json')
+    .then(function (d) {
+      var gh = (d && d.github) || {};
+      var lb = gh.lang_bytes || null;
+
+      if (!lb || !Object.keys(lb).length) {
+        state.textContent = '语言占比暂不可用';
+        return;
+      }
+      var total = Object.keys(lb).reduce(function (s, k) { return s + lb[k]; }, 0);
+      langs.innerHTML = '';
+      Object.keys(lb).forEach(function (k) {
+        var pct = total ? (lb[k] / total * 100) : 0;
+        var wrap = ZL.el('div', 'bar');
+        var t = ZL.el('div', 'bar__t');
+        t.appendChild(ZL.el('b', null, k));
+        t.appendChild(ZL.el('span', null, pct.toFixed(1) + '% · ' + kb(lb[k])));
+        wrap.appendChild(t);
+        var tr = ZL.el('div', 'bar__track');
+        var fl = ZL.el('div', 'bar__fill');
+        fl.setAttribute('data-pct', pct.toFixed(1));
+        tr.appendChild(fl);
+        wrap.appendChild(tr);
+        langs.appendChild(wrap);
+      });
+      state.textContent = '合计 ' + kb(total) + ' · GitHub 统计口径';
+      ZL.bars(langs);
+
+      /* 站点矩阵 */
+      var ss = d.sites || [];
+      if (ss.length) {
+        sites.innerHTML = '';
+        ss.forEach(function (s) {
+          var a = ZL.el('a', 'card rv');
+          a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+          var h = ZL.el('div', 'card__head');
+          h.appendChild(ZL.el('div', 'card__logo', s.kind === 'hub' ? 'Z' : (s.kind === 'game' ? 'G' : 'A')));
+          var id = ZL.el('div');
+          id.appendChild(ZL.el('div', 'card__name', s.host));
+          id.appendChild(ZL.el('div', 'card__plat', (s.name || '').toUpperCase()));
+          h.appendChild(id);
+          h.appendChild(ZL.el('span', 'card__arrow', '↗'));
+          a.appendChild(h);
+          a.appendChild(ZL.el('p', 'card__desc', s.desc || ''));
+          sites.appendChild(a);
+        });
+      }
+    })
+    .catch(function () {
+      state.className = 'sk sk--err';
+      state.textContent = '数据暂时无法加载，工具链部分为静态内容，不受影响。';
+    });
+})();
+</script>
+</body>
+</html>
