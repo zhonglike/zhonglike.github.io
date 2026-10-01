@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>项目库 · zhonglike</title>
+<meta name="description" content="zhonglike 的原创项目库 —— 游戏、Flutter 应用与开发工具，含 README 文档与上线站点入口。" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'" />
+<meta name="referrer" content="no-referrer" />
+<noscript><style>.rv{opacity:1!important;transform:none!important}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' fill='%23fff' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav__in">
+    <a class="nav__brand" href="/">zhonglike<span>/tech</span></a>
+    <div class="nav__links">
+      <a href="/" data-route="">门户</a>
+      <a href="/projects/" data-route="projects">项目</a>
+      <a href="/now/" data-route="now">动态</a>
+      <a href="/stack/" data-route="stack">技术栈</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="crumb">
+    <a href="/">zhonglike.tech</a><span class="dot"></span><b>/projects</b>
+    <em style="margin-left:auto">README 由 GitHub 自动同步</em>
+  </div>
+
+  <header class="ph">
+    <div class="ph__t">项目库</div>
+    <p class="ph__d">
+      <span data-stat="github.orig_repos">9</span> 个原创仓库，覆盖游戏、Flutter 应用与开发工具。
+      fork 仓库与未完成的实验不计入。文档取自各仓库 README，随仓库更新自动同步。
+    </p>
+  </header>
+
+  <section>
+    <div class="filters" id="filters"></div>
+    <div class="grid g3" id="list"></div>
+    <div class="sk" id="state">正在读取 data/projects.json …</div>
+  </section>
+
+  <div class="note">
+    <b>关于展示范围：</b>已排除全部 fork 仓库，以及涉及第三方游戏作弊的仓库 —— 后者违反 GitHub 服务条款，不做公开展示。
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <p>© 2026 zhonglike · 唯一官方域名 zhonglike.tech</p>
+    <div class="foot__links">
+      <a href="https://github.com/zhonglike" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/now/">动态</a>
+      <a href="/stack/">技术栈</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js"></script>
+<script>
+(function () {
+  var CAT = { game: '游戏', app: '应用', tool: '工具' };
+  var LC  = { JavaScript: '#d4d4d8', Dart: '#a1a1aa', Python: '#8a8a93',
+              PowerShell: '#71717a', Other: '#52525b' };
+
+  /* 离线兜底：结构与 data/projects.json 一致，取不到数据时照常展示 */
+  var FALLBACK = [
+    { name:'farm-game', cat:'game', lang:'JavaScript', stars:0, license:'none', updated:'2026-10-01',
+      desc:'开心农场 · 牧场经营 — QQ 农场式 网格点击 HTML5 游戏', site:'https://farm.zhonglike.tech',
+      url:'https://github.com/zhonglike/farm-game' },
+    { name:'silva-game', cat:'game', lang:'JavaScript', stars:0, license:'none', updated:'2026-09-30',
+      desc:'SILVA 森语 — 类 LAAS 的全程序化 3D 开放世界探索游戏（HTML5/Three.js/WebGL）',
+      site:'https://gamesilva.zhonglike.tech', url:'https://github.com/zhonglike/silva-game' },
+    { name:'virtual-companion', cat:'app', lang:'Dart', stars:3, license:'MIT', updated:'2026-09-01',
+      desc:'AI 虚拟陪伴聊天软件。DeepSeek / OpenAI 兼容 / 本地 Ollama 三后端，AIRS 角色库，日语 TTS，AI 主动消息。',
+      url:'https://github.com/zhonglike/virtual-companion' },
+    { name:'enPractice', cat:'app', lang:'Dart', stars:1, license:'MIT', updated:'2026-08-21',
+      desc:'仿金山打字通的英文打字练习工具。实时 WPM 与正确率统计，可接 Ollama 按主题生成练习文本。',
+      url:'https://github.com/zhonglike/enPractice' },
+    { name:'OCOS', cat:'app', lang:'JavaScript', stars:1, license:'none', updated:'2026-07-12',
+      desc:'Electron 打造的开源伪桌面系统。任务栏、窗口管理器、虚拟桌面，内置文件管理器、浏览器、终端、计算器与画图。',
+      url:'https://github.com/zhonglike/OCOS' },
+    { name:'AI-Debate', cat:'tool', lang:'Python', stars:1, license:'MIT', updated:'2026-08-27',
+      desc:'本地多模型图形化辩论程序：同时加载多个 GGUF 本地大模型自动多轮辩论，完全离线。',
+      url:'https://github.com/zhonglike/AI-Debate' },
+    { name:'Local-Area-Network-Information-Transfer-Station', cat:'tool', lang:'Python', stars:1, license:'MIT', updated:'2026-08-17',
+      desc:'LANITS — 电脑上复制，手机上自动收到。零配置、mDNS 自动发现，数据不出内网。',
+      url:'https://github.com/zhonglike/Local-Area-Network-Information-Transfer-Station' },
+    { name:'MyBlog', cat:'tool', lang:'JavaScript', stars:1, license:'ISC', updated:'2026-06-27',
+      desc:'Node.js + Express + SQLite 自建博客。Markdown 写作、媒体上传、3 套主题、内置 AI 助手，JWT 鉴权。',
+      url:'https://github.com/zhonglike/MyBlog' },
+    { name:'xiaoai-agent-unlock', cat:'tool', lang:'PowerShell', stars:0, license:'none', updated:'2026-09-11',
+      desc:'让小米笔记本专属的「超级小爱 / 小爱同学」PC 客户端跑在任意品牌电脑上，用 PowerShell 解除机型白名单校验。',
+      url:'https://github.com/zhonglike/xiaoai-agent-unlock' }
+  ];
+
+  var list = document.getElementById('list');
+  var filters = document.getElementById('filters');
+  var state = document.getElementById('state');
+  var items = [], active = 'all';
+
+  function card(p) {
+    var el = ZL.el('article', 'proj rv');
+    el.setAttribute('data-cat', p.cat || 'tool');
+    el.setAttribute('data-lang', p.lang || 'Other');
+
+    var head = ZL.el('div');
+    head.style.cssText = 'display:flex;align-items:flex-start;gap:10px';
+    var h3 = ZL.el('h3', null, p.name);
+    h3.style.cssText = 'flex:1;min-width:0;word-break:break-word';
+    head.appendChild(h3);
+
+    var bd = ZL.el('span', 'badge');
+    bd.style.cssText = 'position:static;flex:none';
+    bd.textContent = CAT[p.cat] || '工具';
+    head.appendChild(bd);
+    el.appendChild(head);
+
+    el.appendChild(ZL.el('p', 'proj__desc', p.desc || '（该仓库未填写描述）'));
+
+    /* 站点 / 仓库入口 */
+    var acts = ZL.el('div');
+    acts.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
+    if (p.site) {
+      var a1 = ZL.el('a', 'fbtn', '访问站点 ↗');
+      a1.href = p.site; a1.target = '_blank'; a1.rel = 'noopener noreferrer';
+      a1.style.fontWeight = '600';
+      acts.appendChild(a1);
+    }
+    var a2 = ZL.el('a', 'fbtn', '仓库源码 ↗');
+    a2.href = p.url; a2.target = '_blank'; a2.rel = 'noopener noreferrer';
+    acts.appendChild(a2);
+
+    if (p.readme) {
+      var tg = ZL.el('button', 'fbtn', 'README');
+      tg.type = 'button';
+      tg.addEventListener('click', function () {
+        var box = el.querySelector('.rm');
+        if (!box) return;
+        var open = box.hasAttribute('hidden');
+        if (open) { box.removeAttribute('hidden'); tg.classList.add('on'); }
+        else { box.setAttribute('hidden', ''); tg.classList.remove('on'); }
+      });
+      acts.appendChild(tg);
+    }
+    el.appendChild(acts);
+
+    if (p.readme) {
+      var rm = ZL.el('div', 'rm');
+      rm.setAttribute('hidden', '');
+      rm.innerHTML = ZL.md(p.readme);
+      el.appendChild(rm);
+    } else if (p.site) {
+      var tip = ZL.el('p', null, '文档需联网加载。');
+      tip.className = 'sk';
+      tip.setAttribute('hidden', '');
+      el.appendChild(tip);
+    }
+
+    var foot = ZL.el('div', 'proj__foot');
+    var lang = ZL.el('span');
+    var dot = ZL.el('i');
+    dot.style.background = LC[p.lang] || LC.Other;
+    lang.appendChild(dot);
+    lang.appendChild(document.createTextNode(p.lang || 'Other'));
+    foot.appendChild(lang);
+    foot.appendChild(ZL.el('span', null, '★ ' + (p.stars || 0)));
+    foot.appendChild(ZL.el('span', null, (p.license && p.license !== 'none') ? p.license : '无协议'));
+    foot.appendChild(ZL.el('span', null, '更新 ' + (p.updated || '—')));
+    el.appendChild(foot);
+    return el;
+  }
+
+  function applyFilter() {
+    var shown = 0;
+    Array.prototype.forEach.call(list.children, function (c) {
+      var hit = active === 'all' || c.getAttribute('data-cat') === active || c.getAttribute('data-lang') === active;
+      c.hidden = !hit;
+      if (hit) shown++;
+    });
+    Array.prototype.forEach.call(filters.children, function (b) {
+      b.classList.toggle('on', b.getAttribute('data-f') === active);
+    });
+    state.textContent = shown + ' 个项目';
+  }
+
+  function render(data) {
+    items = data || [];
+    list.innerHTML = '';
+    items.forEach(function (p) { list.appendChild(card(p)); });
+
+    var seen = {};
+    var btns = [{ k: 'all', t: '全部 ' + items.length }];
+    ['game', 'app', 'tool'].forEach(function (c) {
+      var n = items.filter(function (p) { return p.cat === c; }).length;
+      if (n) btns.push({ k: c, t: CAT[c] + ' ' + n });
+    });
+    items.forEach(function (p) {
+      var l = p.lang || 'Other';
+      if (!seen[l]) { seen[l] = 1; btns.push({ k: l, t: l }); }
+    });
+
+    filters.innerHTML = '';
+    btns.forEach(function (b) {
+      var el = ZL.el('button', 'fbtn', b.t);
+      el.type = 'button';
+      el.setAttribute('data-f', b.k);
+      el.addEventListener('click', function () { active = b.k; applyFilter(); });
+      filters.appendChild(el);
+    });
+    applyFilter();
+  }
+
+  ZL.json('/data/projects.json')
+    .then(function (d) { render(d.items && d.items.length ? d.items : FALLBACK); })
+    .catch(function () { render(FALLBACK); state.classList.add('sk--err'); state.textContent = '离线模式：使用内置快照'; });
+})();
+</script>
+</body>
+</html>
