@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-01T21:23:25+08:00",
+  "updated_at": "2026-10-01T21:48:11+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 15,
@@ -77,6 +77,20 @@
       "url": "https://zhonglike.tech",
       "desc": "身份聚合与项目索引",
       "kind": "hub"
+    },
+    {
+      "name": "farm-game",
+      "host": "farm.zhonglike.tech",
+      "url": "https://farm.zhonglike.tech",
+      "desc": "开心农场·牧场经营 - QQ农场式逐格点击 HTML5 游戏",
+      "kind": "game"
+    },
+    {
+      "name": "silva-game",
+      "host": "gamesilva.zhonglike.tech",
+      "url": "https://gamesilva.zhonglike.tech",
+      "desc": "SILVA 森语 — 类 LAAS 的全程序化 3D 开放世界探索游戏（HTML5/Three.js/WebGL）",
+      "kind": "game"
     }
   ]
 }
