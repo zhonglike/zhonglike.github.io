@@ -54,13 +54,53 @@
     var el = document.getElementById('stamp-time');
     if (el) el.textContent = text;
   }
+  function pick(d, path) {
+    if (!d) return undefined;
+    return String(path).split('.').reduce(function (o, k) {
+      return (o === undefined || o === null) ? undefined : o[k];
+    }, d);
+  }
+
   function applyStats(d) {
     Array.prototype.forEach.call(document.querySelectorAll('[data-stat]'), function (el) {
-      var v = el.getAttribute('data-stat').split('.').reduce(function (o, k) {
-        return (o === undefined || o === null) ? undefined : o[k];
-      }, d);
+      var v = pick(d, el.getAttribute('data-stat'));
       if (v !== undefined && v !== null) el.textContent = v;
     });
+    // 账号年龄：由 created_at 现场推算，避免写死后过期
+    Array.prototype.forEach.call(document.querySelectorAll('[data-months]'), function (el) {
+      var v = pick(d, el.getAttribute('data-months'));
+      var t = v ? new Date(v).valueOf() : NaN;
+      if (!isNaN(t)) {
+        var m = Math.floor((Date.now() - t) / 2592000000);
+        if (m >= 0) el.textContent = (m >= 12 ? Math.floor(m / 12) + ' 年 ' + (m % 12) + ' 月' : m + ' 月');
+      }
+    });
+    // 迷你语言条：任何 [data-langbars="n"] 容器都按字节占比渲染前 n 名
+    Array.prototype.forEach.call(document.querySelectorAll('[data-langbars]'), function (box) {
+      var lb = pick(d, 'github.lang_bytes');
+      if (!lb) return;
+      var ks = Object.keys(lb);
+      var n = parseInt(box.getAttribute('data-langbars'), 10) || 4;
+      ks = ks.slice(0, n);
+      var total = ks.reduce(function (s, k) { return s + lb[k]; }, 0);
+      box.innerHTML = '';
+      ks.forEach(function (k) {
+        var pct = total ? (lb[k] / total * 100) : 0;
+        var w = window.ZL.el('div', 'bar');
+        var t = window.ZL.el('div', 'bar__t');
+        t.appendChild(window.ZL.el('b', null, k));
+        t.appendChild(window.ZL.el('span', null, pct.toFixed(1) + '%'));
+        w.appendChild(t);
+        var tr = window.ZL.el('div', 'bar__track');
+        var fl = window.ZL.el('div', 'bar__fill');
+        fl.setAttribute('data-pct', pct.toFixed(1));
+        tr.appendChild(fl);
+        w.appendChild(tr);
+        box.appendChild(w);
+      });
+      window.ZL.bars(box);
+    });
+
     if (d && d.updated_at) {
       var dt = new Date(d.updated_at);
       stamp(isNaN(dt.valueOf()) ? d.updated_at
