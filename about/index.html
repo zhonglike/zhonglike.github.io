@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>关于 · zhonglike</title>
+<meta name="description" content="关于 zhonglike —— 用 AI 做小应用的独立开发者，也在做跑在浏览器里的 3D 游戏。可打印简历版。" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'" />
+<meta name="referrer" content="no-referrer" />
+<noscript><style>.rv{opacity:1!important;transform:none!important}</style></noscript>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' fill='%23fff' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav__in">
+    <a class="nav__brand" href="/">zhonglike<span>/tech</span></a>
+    <div class="nav__links">
+      <a href="/" data-route="">门户</a>
+      <a href="/projects/" data-route="projects">项目</a>
+      <a href="/now/" data-route="now">动态</a>
+      <a href="/stack/" data-route="stack">技术栈</a>
+      <a href="/timeline/" data-route="timeline">时间线</a>
+      <a href="/about/" data-route="about">关于</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="crumb">
+    <a href="/">zhonglike.tech</a><span class="dot"></span><b>/about</b>
+    <em style="margin-left:auto">可打印 · Ctrl/Cmd + P</em>
+  </div>
+
+  <header class="ph">
+    <div class="ph__t">关于</div>
+    <p class="ph__d">
+      zhonglike（John Han）· China · 独立开发者。用 AI 做 Android / Windows 上的小应用，也做跑在浏览器里的 3D 游戏。
+    </p>
+    <div class="meta no-print" style="margin-top:18px">
+      <button class="fbtn" id="printBtn" type="button">打印 / 存为 PDF</button>
+      <a class="fbtn" href="/links/">全部入口 ↗</a>
+      <a class="fbtn" href="https://github.com/zhonglike" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">自我介绍</h2>
+      <span class="sec-note">自 2024-12 · <span data-stat="github.orig_repos">9</span> 个原创项目</span>
+    </div>
+    <div class="grid" style="gap:16px">
+      <div class="card rv">
+        <p class="card__desc" style="font-size:14px;line-height:1.75">
+          我是 zhonglike，2024 年底注册 GitHub，从「用 AI 做点小东西」开始，一路做到现在。
+          做东西的第一原则是<b style="color:var(--fg)">当天就能跑起来</b> —— 想法诞生到能用的距离越短越好，
+          至于架构是否优雅，等它真的被用起来了再说。
+        </p>
+      </div>
+      <div class="card rv">
+        <p class="card__desc" style="font-size:14px;line-height:1.75">
+          前两年主要做<b style="color:var(--fg)">工具</b>：自建博客、局域网互传、本地多模型辩论、伪桌面系统。
+          技术路径从 Flutter 跨端（一套代码出 Windows 与 Android），到 Electron 桌面外壳，
+          再到 Python 与 Node.js 的服务端。共同点是<b style="color:var(--fg)">离线优先</b> ——
+          能跑本地模型就不调远程 API，能走内网就不上云。
+        </p>
+      </div>
+      <div class="card rv">
+        <p class="card__desc" style="font-size:14px;line-height:1.75">
+          2026 年 9 月起转向<b style="color:var(--fg)">游戏</b>：SILVA 森语是类 LAAS 的全程序化 3D 开放世界，
+          用 Three.js / WebGL 直接跑在浏览器里；开心农场是 HTML5 网格点击的牧场经营。
+          两个都已用独立子域发布。工具是手段，世界才是我想做的东西。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">能力矩阵</h2>
+      <span class="sec-note">按用途分组</span>
+    </div>
+    <div class="grid g3">
+      <div class="card rv">
+        <div class="card__head"><div class="card__logo">F</div>
+          <div><div class="card__name">跨端应用</div><div class="card__plat">FLUTTER · DART</div></div>
+        </div>
+        <p class="card__desc">单代码库产出 Windows exe 与 Android apk，做小工具的主力方案。</p>
+      </div>
+      <div class="card rv">
+        <div class="card__head"><div class="card__logo">3</div>
+          <div><div class="card__name">图形与游戏</div><div class="card__plat">THREE.JS · WEBGL · HTML5</div></div>
+        </div>
+        <p class="card__desc">程序化 3D 开放世界与网页小游戏，全部跑在浏览器里，零安装。</p>
+      </div>
+      <div class="card rv">
+        <div class="card__head"><div class="card__logo">E</div>
+          <div><div class="card__name">桌面外壳</div><div class="card__plat">ELECTRON · NODE.JS</div></div>
+        </div>
+        <p class="card__desc">窗口管理器、任务栏、虚拟桌面与内置应用全家桶。</p>
+      </div>
+      <div class="card rv">
+        <div class="card__head"><div class="card__logo">P</div>
+          <div><div class="card__name">服务端与脚本</div><div class="card__plat">PYTHON · EXPRESS · SQLITE</div></div>
+        </div>
+        <p class="card__desc">自建博客、局域网传输、JWT 鉴权与二级密码，轻量但完整。</p>
+      </div>
+      <div class="card rv">
+        <div class="card__head"><div class="card__logo">A</div>
+          <div><div class="card__name">本地大模型</div><div class="card__plat">OLLAMA · GGUF · OFFLINE</div></div>
+        </div>
+        <p class="card__desc">多模型本地加载、离线辩论与推理，不依赖任何远程 API。</p>
+      </div>
+      <div class="card rv">
+        <div class="card__head"><div class="card__logo">W</div>
+          <div><div class="card__name">系统级折腾</div><div class="card__plat">POWERSHELL · WINDOWS</div></div>
+        </div>
+        <p class="card__desc">解除硬件白名单、绕过机型校验这类系统层面的活。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">代表项目</h2>
+      <span class="sec-note">按 Star 与上线状态选取</span>
+    </div>
+    <div class="grid g3" id="picks"></div>
+    <div class="sk" id="pstate">读取中 …</div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="sec-title">在线身份</h2>
+      <span class="sec-note">均可公开验证</span>
+    </div>
+    <div class="grid g3">
+      <a class="card rv" href="https://github.com/zhonglike" target="_blank" rel="noopener noreferrer">
+        <div class="card__head"><div class="card__logo">G</div>
+          <div><div class="card__name">GitHub</div><div class="card__plat">@ZHONGLIKE</div></div>
+          <span class="card__arrow">↗</span>
+        </div>
+        <p class="card__desc"><span data-stat="github.repos">15</span> 仓库 · <span data-stat="github.orig_repos">9</span> 原创 · <span data-stat="github.stars">8</span> Star</p>
+      </a>
+      <a class="card rv" href="https://space.bilibili.com/3493271126935853" target="_blank" rel="noopener noreferrer">
+        <div class="card__head"><div class="card__logo">B</div>
+          <div><div class="card__name">哔哩哔哩</div><div class="card__plat">可爱的硬币1145</div></div>
+          <span class="card__arrow">↗</span>
+        </div>
+        <p class="card__desc"><span data-stat="bilibili.videos">16</span> 投稿 · <span data-stat="bilibili.fans">15</span> 粉丝</p>
+      </a>
+      <a class="card rv" href="https://www.douyin.com/user/MS4wLjABAAAA5J8q0yjNvN2gPwe9WgMGsHBjkQOs_iPEKVBcFobpgQyBSyikwbABUDuaGJC1pIXg" target="_blank" rel="noopener noreferrer">
+        <div class="card__head"><div class="card__logo">D</div>
+          <div><div class="card__name">抖音</div><div class="card__plat">32304602756</div></div>
+          <span class="card__arrow">↗</span>
+        </div>
+        <p class="card__desc"><span data-stat="douyin_b.works">122</span> 作品 · <span data-stat="douyin_b.likes">670</span> 获赞</p>
+      </a>
+    </div>
+
+    <div class="note">
+      <b>说明：</b>页面上的数字取自各平台公开接口并由定时任务刷新，不做推测填充。
+      Steam 资料为「仅好友可见」，Google 无公开主页，两项不在简历中展示数据。
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <p>© 2026 zhonglike · 唯一官方域名 zhonglike.tech</p>
+    <div class="foot__links">
+      <a href="/">门户</a>
+      <a href="/projects/">项目库</a>
+      <a href="/links/">全部入口</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js"></script>
+<script>
+(function () {
+  var picks = document.getElementById('picks');
+  var state = document.getElementById('pstate');
+  var pb = document.getElementById('printBtn');
+  if (pb) pb.addEventListener('click', function () { window.print(); });
+
+  function card(p) {
+    var el = ZL.el('div', 'proj rv');
+    el.appendChild(ZL.el('h3', null, p.name));
+    el.appendChild(ZL.el('p', 'proj__desc', (p.desc || '').slice(0, 90)));
+    var f = ZL.el('div', 'proj__foot');
+    f.appendChild(ZL.el('span', null, p.lang || 'Other'));
+    f.appendChild(ZL.el('span', null, '★ ' + (p.stars || 0)));
+    if (p.site) f.appendChild(ZL.el('span', null, '已上线'));
+    el.appendChild(f);
+    return el;
+  }
+
+  ZL.json('/data/projects.json')
+    .then(function (d) {
+      var items = (d && d.items) || [];
+      var top = items.slice().sort(function (a, b) {
+        return (b.stars || 0) - (a.stars || 0) || (b.site ? 1 : 0) - (a.site ? 1 : 0);
+      }).slice(0, 6);
+      if (!top.length) { state.textContent = '暂无项目数据'; return; }
+      picks.innerHTML = '';
+      top.forEach(function (p) { picks.appendChild(card(p)); });
+      state.textContent = top.length + ' / ' + items.length + ' 个原创项目';
+    })
+    .catch(function () {
+      state.className = 'sk sk--err';
+      state.textContent = '项目数据暂时无法加载，可到项目库页查看。';
+    });
+})();
+</script>
+</body>
+</html>
