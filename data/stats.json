@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-10-04T20:26:25+08:00",
+  "updated_at": "2026-10-01T21:48:11+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
-    "repos": 16,
-    "orig_repos": 10,
+    "repos": 15,
+    "orig_repos": 9,
     "forks": 5,
     "stars": 8,
     "followers": 2,
@@ -14,22 +14,22 @@
     "created_at": "2024-12-27T10:13:09Z",
     "avatar": "https://avatars.githubusercontent.com/u/192965202?v=4",
     "languages": {
-      "JavaScript": 5,
+      "JavaScript": 4,
       "Dart": 2,
       "Python": 2,
       "PowerShell": 1
     },
     "lang_bytes": {
-      "JavaScript": 1214668,
+      "JavaScript": 635247,
       "Python": 204576,
-      "CSS": 202952,
       "Dart": 176677,
-      "HTML": 112653,
+      "CSS": 157263,
+      "HTML": 101506,
       "C++": 38405,
       "Inno Setup": 22501,
       "Java": 20960
     },
-    "last_activity": "2026-10-02"
+    "last_activity": "2026-10-01"
   },
   "bilibili": {
     "uid": "3493271126935853",
@@ -47,7 +47,7 @@
     "unique_id": "zhonglike",
     "works": 3,
     "likes": "68",
-    "fans": 9,
+    "fans": 8,
     "following": 10,
     "nickname": "zhonglike",
     "sign": "爱用AI写东西的正常人\n求用用，如果有需求 可以来找我 我可以看看能不能\n大号@可爱的硬币1145\nGitHub页面：github.com/zhonglike"
@@ -57,7 +57,7 @@
     "unique_id": "32304602756",
     "name": "可爱的硬币1145",
     "works": 122,
-    "likes": "675",
+    "likes": "672",
     "fans": 70,
     "following": 600,
     "nickname": "可爱的硬币1145",
@@ -77,6 +77,20 @@
       "url": "https://zhonglike.tech",
       "desc": "身份聚合与项目索引",
       "kind": "hub"
+    },
+    {
+      "name": "farm-game",
+      "host": "farm.zhonglike.tech",
+      "url": "https://farm.zhonglike.tech",
+      "desc": "开心农场·牧场经营 - QQ农场式逐格点击 HTML5 游戏",
+      "kind": "game"
+    },
+    {
+      "name": "silva-game",
+      "host": "gamesilva.zhonglike.tech",
+      "url": "https://gamesilva.zhonglike.tech",
+      "desc": "SILVA 森语 — 类 LAAS 的全程序化 3D 开放世界探索游戏（HTML5/Three.js/WebGL）",
+      "kind": "game"
     }
   ]
 }
