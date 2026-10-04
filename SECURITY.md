@@ -87,17 +87,32 @@ Manager），Vercel / Netlify 同样是平台自动签发。
 
 ---
 
-## 第三层：邮件防伪（防被冒名发信）
+## 第三层：邮件防伪（2026-10-04 实测更新）
 
-若该域名**不发信**，直接发布"拒绝全部"策略，等于堵死被冒名钓鱼的口子：
+域名**已在用飞书域名邮箱**，`han@zhonglike.tech` 可正常收发信，因此不再适用"拒绝全部"策略。
+
+### 当前实测状态
+
+| 记录 | 现状 | 判定 |
+| --- | --- | --- |
+| MX | `mx1/mx2/mx3.feishu.cn`（优先级 1 / 5 / 10） | ✅ 已生效 |
+| SPF | `v=spf1 +include:_netblocks.m.feishu.cn -all` | ✅ 已配置，且以 `-all` 严格收尾 |
+| DMARC | **无记录**（NXDOMAIN） | ⚠️ 待补 |
+| DKIM | 需飞书邮箱后台开启后按提示回填 | ⚠️ 待确认 |
+
+### 待补的记录
 
 | 主机记录 | 类型 | 记录值 |
 | --- | --- | --- |
-| @ | TXT | `v=spf1 -all` |
-| _dmarc | TXT | `v=DMARC1; p=reject; adkim=s; aspf=s` |
-| *._domainkey | TXT | `v=DKIM1; p=` |
+| _dmarc | TXT | `v=DMARC1; p=quarantine; rua=mailto:han@zhonglike.tech; adkim=r; aspf=r` |
+| （DKIM） | TXT | 飞书邮箱后台生成后按提示添加 |
 
-若将来要用域名邮箱（如 Google Workspace），再按需替换 SPF/DKIM。
+DMARC 先设 `p=quarantine` 观察一段时间，确认没有误伤正常邮件，再改成 `p=reject`。
+
+### 公开邮箱的副作用
+
+`han@zhonglike.tech` 已出现在 `/links/` 与 `/about/` 页面上，会被爬虫抓取，垃圾邮件会增多。
+建议飞书侧开启垃圾邮件过滤，并避免在其他公开场合重复暴露这个地址。
 
 ---
 
