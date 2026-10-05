@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-10-05T13:46:56+08:00",
+  "updated_at": "2026-10-05T22:47:36+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 16,
     "orig_repos": 10,
     "forks": 5,
-    "stars": 8,
-    "followers": 2,
-    "following": 6,
+    "stars": 9,
+    "followers": 1,
+    "following": 7,
     "login": "zhonglike",
     "name": "G-zhonglike",
     "bio": "I enjoy using AI to create small applications, especially for Android and Windows platforms, to make life easier. I love the feeling! It makes me happy!",
@@ -29,7 +29,7 @@
       "Inno Setup": 22501,
       "Java": 20960
     },
-    "last_activity": "2026-10-02"
+    "last_activity": "2026-10-05"
   },
   "bilibili": {
     "uid": "3493271126935853",
@@ -57,7 +57,7 @@
     "unique_id": "32304602756",
     "name": "可爱的硬币1145",
     "works": 122,
-    "likes": "677",
+    "likes": "678",
     "fans": 70,
     "following": 600,
     "nickname": "可爱的硬币1145",
