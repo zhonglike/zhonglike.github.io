@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-10-05T22:47:36+08:00",
+  "updated_at": "2026-10-06T08:06:00+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
-    "repos": 16,
-    "orig_repos": 10,
+    "repos": 17,
+    "orig_repos": 11,
     "forks": 5,
     "stars": 9,
     "followers": 1,
@@ -15,19 +15,19 @@
     "avatar": "https://avatars.githubusercontent.com/u/192965202?v=4",
     "languages": {
       "JavaScript": 5,
+      "Python": 3,
       "Dart": 2,
-      "Python": 2,
       "PowerShell": 1
     },
     "lang_bytes": {
-      "JavaScript": 1214668,
-      "Python": 204576,
-      "CSS": 202952,
+      "JavaScript": 1236364,
+      "Python": 382511,
+      "CSS": 216408,
       "Dart": 176677,
-      "HTML": 112653,
+      "HTML": 121631,
       "C++": 38405,
-      "Inno Setup": 22501,
-      "Java": 20960
+      "Java": 25201,
+      "Inno Setup": 22501
     },
     "last_activity": "2026-10-05"
   },
