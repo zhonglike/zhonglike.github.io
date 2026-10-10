@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-10T06:41:42+08:00",
+  "updated_at": "2026-10-10T13:57:27+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 17,
@@ -29,7 +29,7 @@
       "Java": 25201,
       "Inno Setup": 22501
     },
-    "last_activity": "2026-10-05"
+    "last_activity": "2026-10-09"
   },
   "bilibili": {
     "uid": "3493271126935853",
