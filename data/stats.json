@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-10-14T12:58:26+08:00",
+  "updated_at": "2026-10-14T19:58:31+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 21,
     "orig_repos": 12,
     "forks": 8,
-    "stars": 12,
+    "stars": 13,
     "followers": 1,
     "following": 9,
     "login": "zhonglike",
