@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-21T19:56:03+08:00",
+  "updated_at": "2026-10-22T01:16:02+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 22,
@@ -37,7 +37,7 @@
     "name": "可爱的硬币1145",
     "level": 3,
     "videos": 16,
-    "fans": 15,
+    "fans": 14,
     "following": 246,
     "sign": "",
     "face": "https://i2.hdslb.com/bfs/face/83c5aa5e8d4eafcf990efe7aa0b96477eb173072.jpg",
@@ -58,7 +58,7 @@
     "unique_id": "32304602756",
     "name": "可爱的硬币1145",
     "works": 130,
-    "likes": "691",
+    "likes": "692",
     "fans": 70,
     "following": 600,
     "nickname": "可爱的硬币1145",
