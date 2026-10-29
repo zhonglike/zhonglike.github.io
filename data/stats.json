@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-29T06:38:41+08:00",
+  "updated_at": "2026-10-29T13:52:56+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 24,
@@ -21,14 +21,14 @@
       "HTML": 1
     },
     "lang_bytes": {
-      "JavaScript": 944698,
-      "Python": 186428,
-      "HTML": 128041,
-      "Dart": 114353,
-      "CSS": 74978,
-      "C++": 19403,
-      "PowerShell": 10578,
-      "CMake": 10474
+      "JavaScript": 1344919,
+      "Python": 382511,
+      "HTML": 225901,
+      "CSS": 216408,
+      "Dart": 176677,
+      "C++": 38405,
+      "Java": 25201,
+      "Inno Setup": 22501
     },
     "last_activity": "2026-10-24"
   },
