@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T13:50:13+08:00",
+  "updated_at": "2026-10-31T20:39:18+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 27,
@@ -49,7 +49,7 @@
     "unique_id": "zhonglike",
     "works": 3,
     "likes": "68",
-    "fans": 9,
+    "fans": 8,
     "following": 10,
     "nickname": "zhonglike",
     "sign": "爱用AI写东西的正常人\n求用用，如果有需求 可以来找我 我可以看看能不能\n大号@可爱的硬币1145\nGitHub页面：github.com/zhonglike"
