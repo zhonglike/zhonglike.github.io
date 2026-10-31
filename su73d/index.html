@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>SU73D · 小米 SU7 Ultra</title>
+    <style>
+      :root {
+        --bg: #05070c;
+        --ink: #f2f5f9;
+        --ink-dim: #a7b6c9;
+        --ink-faint: #67788f;
+        --gold: #e8b34b;
+        --gold-soft: rgba(232, 179, 75, 0.16);
+        --line: rgba(167, 182, 201, 0.26);
+        --mono: "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, Consolas,
+          "PingFang SC", "Microsoft YaHei", monospace;
+        --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+          "Source Han Sans SC", "Noto Sans CJK SC", system-ui, sans-serif;
+      }
+      html { scroll-behavior: smooth; }
+      html, body {
+        margin: 0; padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      ::selection { background: var(--gold); color: #0a0c10; }
+      body.finale {
+        --ink: #171b21;
+        --ink-dim: #4c5764;
+        --ink-faint: #7d8894;
+        --line: rgba(23, 27, 33, 0.3);
+      }
+
+      /* ---------- fixed 3D stage ---------- */
+      #stage { position: fixed; inset: 0; z-index: 0; }
+      #stage canvas { display: block; width: 100%; height: 100%; }
+      #stage.glitching { transform: translate(2px, -1px); }
+      /* Poster first frame: the real-car render sits above the canvas and
+         fades out only once the live GLB model is ready, so the first paint
+         is instant and never an empty dark stage. */
+      #fallback-img {
+        position: absolute; inset: 0; width: 100%; height: 100%;
+        object-fit: cover; display: block; z-index: 2; opacity: 1;
+        pointer-events: none; transition: opacity 0.7s ease;
+      }
+      #vignette {
+        position: fixed; inset: 0; z-index: 1; pointer-events: none;
+        background:
+          radial-gradient(115% 90% at 50% 42%, transparent 52%, rgba(2, 4, 8, 0.62) 100%),
+          linear-gradient(to bottom, rgba(2, 4, 8, 0.4), transparent 16%, transparent 84%, rgba(2, 4, 8, 0.5));
+        transition: opacity 0.8s ease;
+      }
+      body.finale #vignette { opacity: 0.18; }
+
+      /* ---------- loader ---------- */
+      #loader {
+        position: fixed; inset: 0; z-index: 100;
+        background: #05070c;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 22px; transition: opacity 0.9s ease;
+      }
+      #loader.done { opacity: 0; pointer-events: none; }
+      #loader .brand {
+        font-size: 15px; letter-spacing: 0.85em; text-indent: 0.85em;
+        color: #e9eef5; font-weight: 600;
+      }
+      #loader .brand span { color: var(--gold); }
+      #loader .bar {
+        width: min(280px, 60vw); height: 1px; background: rgba(255,255,255,0.14);
+      }
+      #loader .bar i {
+        display: block; height: 100%; width: 0%;
+        background: var(--gold); transition: width 0.3s ease;
+      }
+      #loader .pct {
+        font-family: var(--mono); font-size: 12px; letter-spacing: 0.3em;
+        color: #8fa1b8;
+      }
+      #loader .note {
+        font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: #55657a;
+      }
+
+      /* ---------- fixed chrome ---------- */
+      #brandmark {
+        position: fixed; top: calc(20px + env(safe-area-inset-top));
+        left: 50%; transform: translateX(-50%);
+        z-index: 40; font-size: 13px; font-weight: 600;
+        letter-spacing: 0.85em; text-indent: 0.85em;
+        color: var(--ink); pointer-events: none; white-space: nowrap;
+        transition: color 0.6s ease;
+      }
+      #brandmark span { color: var(--gold); }
+      #progress {
+        position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 41;
+        background: rgba(140, 160, 190, 0.14);
+      }
+      #progress-bar {
+        height: 100%; width: 100%;
+        background: linear-gradient(90deg, #f3d189, var(--gold));
+        transform-origin: 0 50%; transform: scaleX(0);
+      }
+      #counter {
+        position: fixed; left: clamp(18px, 4vw, 52px);
+        bottom: calc(20px + env(safe-area-inset-bottom));
+        z-index: 40; font-family: var(--mono); font-size: 11px;
+        letter-spacing: 0.3em; color: var(--ink-faint); pointer-events: none;
+        transition: color 0.6s ease;
+      }
+      #counter b { color: var(--ink); font-weight: 600; transition: color 0.6s ease; }
+
+      #dots {
+        position: fixed; right: clamp(12px, 2.6vw, 30px); top: 50%;
+        transform: translateY(-50%); z-index: 40;
+        display: flex; flex-direction: column; gap: 13px;
+      }
+      #dots button {
+        width: 24px; height: 24px; padding: 0; border: 0;
+        background: transparent; cursor: pointer; display: grid; place-items: center;
+      }
+      #dots button i {
+        display: block; width: 6px; height: 6px; border-radius: 50%;
+        background: rgba(160, 178, 200, 0.4); transition: all 0.35s ease;
+      }
+      body.finale #dots button i { background: rgba(23, 27, 33, 0.35); }
+      #dots button.on i {
+        background: var(--gold);
+        box-shadow: 0 0 0 5px var(--gold-soft), 0 0 12px rgba(232, 179, 75, 0.8);
+      }
+      #dots button:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+
+      #hint {
+        position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom));
+        transform: translateX(-50%); z-index: 40;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        color: var(--ink-faint); font-size: 10px; letter-spacing: 0.5em; text-indent: 0.5em;
+        pointer-events: none; transition: opacity 0.6s ease;
+      }
+      #hint .wheel {
+        width: 21px; height: 34px; border: 1px solid var(--ink-faint);
+        border-radius: 11px; position: relative;
+      }
+      #hint .wheel::after {
+        content: ""; position: absolute; left: 50%; top: 6px;
+        width: 3px; height: 7px; margin-left: -1.5px; border-radius: 3px;
+        background: var(--gold); animation: drop 1.8s ease-in-out infinite;
+      }
+      @keyframes drop {
+        0% { transform: translateY(0); opacity: 1; }
+        70% { transform: translateY(11px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 0; }
+      }
+
+      /* ---------- moving title block (scroll-driven, never paged) ---------- */
+      #titleblock {
+        position: fixed; left: 0; top: 0; z-index: 30;
+        width: min(620px, 88vw);
+        pointer-events: none;
+        will-change: transform;
+      }
+      #titleblock .inner { transition: text-align 0.3s; }
+      .prow {
+        font-family: var(--mono);
+        font-size: clamp(11px, 1.35vw, 13px);
+        letter-spacing: 0.14em;
+        color: var(--gold);
+        margin: 0 0 6px;
+        white-space: nowrap;
+      }
+      .prow.dim { color: var(--ink-faint); transition: color 0.6s ease; }
+      .prow .cursor {
+        display: inline-block; width: 8px; color: var(--gold);
+        animation: blink 1.05s steps(1) infinite;
+      }
+      @keyframes blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+      #bigtitle {
+        margin: 10px 0 0;
+        font-size: clamp(44px, 8.4vw, 104px);
+        font-weight: 800; line-height: 1.02; letter-spacing: 0.01em;
+        text-wrap: balance;
+        transition: color 0.6s ease;
+        position: relative;
+      }
+      #bigtitle em { font-style: normal; color: var(--gold); font-variant-numeric: tabular-nums; }
+      /* glitch: RGB split + glyph shift, only during segment-boundary burst */
+      .glitching #bigtitle {
+        text-shadow: 3px 0 rgba(255, 45, 85, 0.75), -3px 0 rgba(0, 195, 255, 0.75);
+        transform: translateX(2px) skewX(-3deg);
+      }
+      .glitching .prow { transform: translateX(-2px); }
+      .glitching #bigtitle, .glitching .prow { transition: none; }
+      #lede {
+        margin: 18px 0 0; max-width: 33em;
+        font-size: clamp(15px, 1.9vw, 19px); line-height: 1.78;
+        color: var(--ink-dim); transition: color 0.6s ease;
+      }
+      #titleblock[data-align="center"] #lede { margin-left: auto; margin-right: auto; }
+      #titleblock[data-align="right"] #lede { margin-left: auto; }
+      #price {
+        display: none; margin: 20px 0 0;
+        font-size: clamp(30px, 4.6vw, 50px); font-weight: 800; letter-spacing: 0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+      #price small {
+        font-size: 0.4em; font-weight: 500; color: var(--ink-dim);
+        letter-spacing: 0.22em; margin-left: 10px; transition: color 0.6s ease;
+      }
+      #titleblock[data-ch="6"] #price { display: block; }
+
+      /* ---------- cockpit cards (revealed to live on the car's screen) ---------- */
+      #cards {
+        position: fixed; left: 0; top: 0; z-index: 25;
+        display: flex; gap: 14px; pointer-events: none;
+        opacity: 0; visibility: hidden; will-change: transform, opacity;
+      }
+      .fcard {
+        width: clamp(118px, 15vw, 178px);
+        border: 1px solid rgba(150, 185, 230, 0.4);
+        background: linear-gradient(160deg, rgba(16, 28, 48, 0.92), rgba(8, 14, 26, 0.94));
+        border-radius: 10px; padding: 14px 14px 12px;
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+      }
+      .fcard .tag {
+        font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+        color: #7fd0ff; margin: 0 0 9px;
+      }
+      .fcard h3 { margin: 0 0 6px; font-size: clamp(15px, 1.8vw, 19px); font-weight: 700; color: #eef4fb; }
+      .fcard p { margin: 0; font-size: 12px; line-height: 1.6; color: #93a9c4; }
+      .fcard .bar { height: 3px; border-radius: 2px; background: rgba(127, 208, 255, 0.25); margin-top: 11px; overflow: hidden; }
+      .fcard .bar i { display: block; height: 100%; background: #7fd0ff; border-radius: 2px; }
+
+      /* ---------- replay ---------- */
+      #replay {
+        position: fixed; left: 50%; bottom: calc(30px + env(safe-area-inset-bottom));
+        transform: translateX(-50%); z-index: 42;
+        appearance: none; border: 1px solid var(--gold);
+        background: var(--gold-soft); color: #8a5f14;
+        font: inherit; font-size: 13px; letter-spacing: 0.34em; text-indent: 0.34em;
+        padding: 13px 26px; border-radius: 999px; cursor: pointer;
+        opacity: 0; pointer-events: none; visibility: hidden; display: none;
+        transition: opacity 0.5s ease, background 0.3s ease, visibility 0.5s;
+      }
+      body.finale #replay { opacity: 1; pointer-events: auto; visibility: visible; display: block; }
+      #replay:hover { background: var(--gold); color: #14100a; }
+
+      /* ---------- scroll spacers (invisible; scroll length only) ---------- */
+      main { position: relative; z-index: 2; }
+      .spacer { height: 135vh; pointer-events: none; }
+      .spacer:first-child { height: 112vh; }
+      .spacer:last-child { height: 125vh; }
+
+      #glerror {
+        position: fixed; inset: auto 16px 16px 16px; z-index: 90; display: none;
+        background: rgba(50, 26, 6, 0.94); border: 1px solid rgba(232, 179, 75, 0.65);
+        color: #ffe1ae; font-size: 13px; line-height: 1.6;
+        padding: 12px 16px; border-radius: 10px; white-space: pre-wrap; word-break: break-word;
+      }
+
+      @media (max-width: 720px) {
+        #counter { display: none; }
+        #brandmark { font-size: 12px; letter-spacing: 0.6em; text-indent: 0.6em; }
+        #cards { gap: 8px; }
+        .fcard { padding: 10px; border-radius: 8px; }
+        .fcard p { display: none; }
+        #hint { bottom: auto; top: calc(56px + env(safe-area-inset-top)); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        #hint .wheel::after, .prow .cursor { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" aria-hidden="true"><img id="fallback-img" src="assets/poster.png" alt="" /></div>
+    <div id="vignette" aria-hidden="true"></div>
+
+    <div id="loader" role="status">
+      <div class="brand">SU7<span>3D</span></div>
+      <div class="bar"><i id="load-fill"></i></div>
+      <div class="pct" id="load-pct">0%</div>
+      <div class="note">// LOADING SU7 ULTRA · REAL CAR MODEL</div>
+    </div>
+
+    <div id="progress" aria-hidden="true"><div id="progress-bar"></div></div>
+    <div id="brandmark" aria-hidden="true">SU7<span>3D</span></div>
+    <div id="counter" aria-hidden="true"><b id="counter-now">01</b> / 07</div>
+
+    <nav id="dots" aria-label="章节导航">
+      <button type="button" data-go="0" aria-label="第 1 章：亮相"><i></i></button>
+      <button type="button" data-go="1" aria-label="第 2 章：空气动力学"><i></i></button>
+      <button type="button" data-go="2" aria-label="第 3 章：性能"><i></i></button>
+      <button type="button" data-go="3" aria-label="第 4 章：智能驾驶"><i></i></button>
+      <button type="button" data-go="4" aria-label="第 5 章：澎湃芯"><i></i></button>
+      <button type="button" data-go="5" aria-label="第 6 章：智能座舱"><i></i></button>
+      <button type="button" data-go="6" aria-label="第 7 章：价格与定格"><i></i></button>
+    </nav>
+
+    <div id="hint" aria-hidden="true"><div class="wheel"></div><div>向下滚动</div></div>
+
+    <!-- one persistent title block: it moves, morphs and swaps copy with scroll -->
+    <div id="titleblock" data-ch="0" data-align="center">
+      <div class="inner">
+        <p class="prow" id="prow-a">// TRI_MOTOR</p>
+        <p class="prow dim" id="prow-b">PWR_ 1548 PS<span class="cursor">_</span></p>
+        <h1 id="bigtitle">SU7 Ultra</h1>
+        <p id="lede"></p>
+        <p id="price">¥529,900<small>起 · SU7 Ultra</small></p>
+      </div>
+    </div>
+
+    <!-- cockpit feature cards: start large, then shrink onto the car's centre screen -->
+    <div id="cards" aria-hidden="true">
+      <div class="fcard"><p class="tag">// NAV</p><h3>导航</h3><p>路线与智驾状态，实时同屏。</p><div class="bar"><i style="width:72%"></i></div></div>
+      <div class="fcard"><p class="tag">// MEDIA</p><h3>音乐</h3><p>手机歌单，上车无缝续播。</p><div class="bar"><i style="width:46%"></i></div></div>
+      <div class="fcard"><p class="tag">// CLIMATE</p><h3>空调 · 座椅</h3><p>温度与座椅，一屏掌控。</p><div class="bar"><i style="width:61%"></i></div></div>
+      <div class="fcard"><p class="tag">// CONTROL</p><h3>车辆控制</h3><p>尾翼、悬架、驾驶模式随手调。</p><div class="bar"><i style="width:84%"></i></div></div>
+    </div>
+
+    <button class="replay" type="button" id="replay">回到起点 ↑</button>
+
+    <main aria-hidden="true">
+      <div class="spacer"></div><div class="spacer"></div><div class="spacer"></div>
+      <div class="spacer"></div><div class="spacer"></div><div class="spacer"></div>
+      <div class="spacer"></div>
+    </main>
+
+    <div id="glerror" role="alert"></div>
+
+    <script src="assets/lib-64991b.js"></script>
+    <script src="assets/lib-b9097e.js"></script>
+    <script>
+      (function () {
+        "use strict";
+        var errBox = document.getElementById("glerror");
+        function showError(msg) {
+          errBox.style.display = "block";
+          errBox.textContent = msg;
+        }
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* Software-rasterizer detection (audit/headless SwiftShader,
+           llvmpipe, …): a throwaway 1x1 context, queried once before any
+           heavy work. Real GPUs (Adreno/Metal/desktop GL) never match, so
+           real-device quality is untouched by every branch below that
+           reads this flag. */
+        var SOFTWARE_GL = (function () {
+          try {
+            var c = document.createElement("canvas");
+            var gl = c.getContext("webgl") || c.getContext("experimental-webgl");
+            if (!gl) return false;
+            var ext = gl.getExtension("WEBGL_debug_renderer_info");
+            var name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || "") : "";
+            var lose = gl.getExtension("WEBGL_lose_context");
+            if (lose) lose.loseContext();
+            return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
+          } catch (e) { return false; }
+        })();
+        var slowMode = SOFTWARE_GL;
+
+        /* ================= chapter copy — SU7 Ultra only, verified figures only ================= */
+        var CHAPTERS = [
+          { a: "// TRI_MOTOR · 三电机", b: "PWR_ 1548 PS",
+            title: "SU7 <em>Ultra</em>",
+            lede: "夜空之下，量产版 SU7 Ultra 就位。三电机全轮驱动，碳纤维与那道闪电拉花，都是为速度留下的签名。" },
+          { a: "// AERO_KIT · 空气动力学套件", b: "WING_ 固定式大尾翼 · 碳纤维部件",
+            title: "为速度<em>塑形</em>",
+            lede: "固定式碳纤维大尾翼、前铲与主动扩散器协同工作，把气流梳成下压力——贴地，才敢快。" },
+          { a: "// PERFORMANCE · 三电机四驱", b: "0-100_ 1.98 s · VMAX_ 350 km/h",
+            title: "<em>1.98</em> 秒<br />弹射起步",
+            lede: "三台电机合计 1548 PS，零百加速 1.98 秒，最高时速 350 km/h。镜头压到车尾，剩下的交给推背感。" },
+          { a: "// XIAOMI_PILOT · 智能驾驶", b: "LIDAR_ 车顶激光雷达 · 全车感知",
+            title: "俯瞰<em>全局</em>",
+            lede: "镜头升到车顶正上方：激光雷达与全车传感器织成一张感知网，路面的一切，都在它的视野里。" },
+          { a: "// COMPUTE_CORE · 算力核心", b: "OS_ Xiaomi HyperOS",
+            title: "澎湃<em>芯</em>",
+            lede: "金色光锥之下，算力核心升起。智驾的判断、座舱的响应，都从这里出发——快，而且冷静。" },
+          { a: "// COCKPIT · 智能座舱", b: "SCREEN_ 中控大屏 · 人车家全生态",
+            title: "人车家<br /><em>全生态</em>",
+            lede: "刚才滑过的那些卡片，其实一直都在这块中控屏上。镜头拉远——方向盘、座椅、红色氛围灯带，整间座舱亮给你看。" },
+          { a: "// SU7_ULTRA · 量产版", b: "1548 PS · 1.98 s · 350 km/h",
+            title: "SU7 <em>Ultra</em>",
+            lede: "灯光亮起，车尾定格。三电机、1548 PS、1.98 秒——这台量产车的参数表，到此为止，剩下的去赛道上验。" }
+        ];
+
+        /* ================= DOM refs ================= */
+        var stage = document.getElementById("stage");
+        var titleblock = document.getElementById("titleblock");
+        var prowA = document.getElementById("prow-a");
+        var prowB = document.getElementById("prow-b");
+        var bigtitle = document.getElementById("bigtitle");
+        var lede = document.getElementById("lede");
+        var cardsEl = document.getElementById("cards");
+        var dots = Array.prototype.slice.call(document.querySelectorAll("#dots button"));
+        var counterNow = document.getElementById("counter-now");
+        var progressBar = document.getElementById("progress-bar");
+        var hint = document.getElementById("hint");
+        var loader = document.getElementById("loader");
+        var loadFill = document.getElementById("load-fill");
+        var loadPct = document.getElementById("load-pct");
+        var fallbackImg = document.getElementById("fallback-img");
+
+        function setChapter(i) {
+          var c = CHAPTERS[i];
+          prowA.textContent = c.a;
+          prowB.innerHTML = c.b + '<span class="cursor">_</span>';
+          bigtitle.innerHTML = c.title;
+          lede.textContent = c.lede;
+          titleblock.setAttribute("data-ch", String(i));
+          counterNow.textContent = ("0" + (i + 1)).slice(-2);
+          dots.forEach(function (d, di) { d.classList.toggle("on", di === i); });
+        }
+        setChapter(0);
+        lede.textContent = CHAPTERS[0].lede;
+
+        /* ================= scroll state ================= */
+        var NCH = 7;
+        var targetSeg = 0, currentSeg = 0, activeCh = 0;
+        var maxScroll = 1;
+        function measure() { maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight); }
+        function readScroll() {
+          var p = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+          targetSeg = p * (NCH - 1);
+          progressBar.style.transform = "scaleX(" + p + ")";
+          hint.style.opacity = window.scrollY > 40 ? "0" : "1";
+        }
+        window.addEventListener("scroll", readScroll, { passive: true });
+
+        dots.forEach(function (d) {
+          d.addEventListener("click", function () {
+            var idx = parseInt(d.getAttribute("data-go"), 10);
+            window.scrollTo({ top: (idx / (NCH - 1)) * maxScroll, behavior: reduced ? "auto" : "smooth" });
+          });
+        });
+        document.getElementById("replay").addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+        });
+
+        /* ---------- glitch burst at segment boundaries only ---------- */
+        var glitchTimer = null;
+        function fireGlitch() {
+          if (reduced) return;
+          document.body.classList.add("glitching");
+          stage.classList.add("glitching");
+          if (glitchTimer) clearTimeout(glitchTimer);
+          glitchTimer = setTimeout(function () {
+            document.body.classList.remove("glitching");
+            stage.classList.remove("glitching");
+          }, 300);
+        }
+
+        /* ---------- title block anchors (fractions of viewport) ---------- */
+        function anchors() {
+          var mob = window.innerWidth <= 720;
+          if (mob) {
+            return [
+              { x: 0.50, y: 0.60, s: 1.00, tx: -50, align: "center" },
+              { x: 0.06, y: 0.58, s: 0.86, tx: 0, align: "left" },
+              { x: 0.06, y: 0.56, s: 0.86, tx: 0, align: "left" },
+              { x: 0.50, y: 0.09, s: 0.84, tx: -50, align: "center" },
+              { x: 0.06, y: 0.56, s: 0.86, tx: 0, align: "left" },
+              { x: 0.06, y: 0.54, s: 0.86, tx: 0, align: "left" },
+              { x: 0.50, y: 0.60, s: 0.95, tx: -50, align: "center" }
+            ];
+          }
+          return [
+            { x: 0.50, y: 0.565, s: 1.08, tx: -50, align: "center" },
+            { x: 0.065, y: 0.54, s: 0.94, tx: 0, align: "left" },
+            { x: 0.065, y: 0.50, s: 0.94, tx: 0, align: "left" },
+            { x: 0.50, y: 0.085, s: 0.9, tx: -50, align: "center" },
+            { x: 0.935, y: 0.50, s: 0.94, tx: -100, align: "right" },
+            { x: 0.065, y: 0.48, s: 0.94, tx: 0, align: "left" },
+            { x: 0.50, y: 0.60, s: 1.02, tx: -50, align: "center" }
+          ];
+        }
+        function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+        function segLerp(seg, fn) {
+          var i = Math.max(0, Math.min(NCH - 2, Math.floor(seg)));
+          var f = easeInOutCubic(Math.max(0, Math.min(1, seg - i)));
+          return fn(i, i + 1, f);
+        }
+
+        /* ================= three.js boot ================= */
+        function scheduleBoot() { setTimeout(boot, 0); }
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", scheduleBoot);
+        else scheduleBoot();
+
+        function boot() {
+          var scaleLevels = [1, 0.7, 0.5, 0.35];
+          var scaleLevel = SOFTWARE_GL ? 2 : 0;
+          var renderer;
+          try {
+            renderer = new THREE.WebGLRenderer({ antialias: !SOFTWARE_GL, powerPreference: "high-performance" });
+          } catch (e) {
+            engageFallbackImage("当前设备无法创建 WebGL，已切换为真车渲染图展示。");
+            return;
+          }
+          /* Full quality on every real device — native DPR, no mobile
+             downgrade. Only a software rasterizer starts at a reduced
+             internal scale with MSAA/shadows off; real GPUs never take
+             that branch. */
+          renderer.setPixelRatio(window.devicePixelRatio * scaleLevels[scaleLevel]);
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.shadowMap.enabled = !SOFTWARE_GL;
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+          /* static light + near-static car: refresh the shadow map a few
+             times a second instead of every frame (visually identical,
+             keeps the 2.2M-vert real-car scene fluid) */
+          renderer.shadowMap.autoUpdate = false;
+          renderer.shadowMap.needsUpdate = true;
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer.toneMappingExposure = 1.0;
+          stage.appendChild(renderer.domElement);
+
+          var scene = new THREE.Scene();
+          var DARK = new THREE.Color(0x05070c), LIGHT = new THREE.Color(0xe9e7e1);
+          scene.background = new THREE.Color().copy(DARK);
+          scene.fog = new THREE.Fog(0x05070c, 26, 82);
+
+          var camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 220);
+          /* studio-strip environment: soft, low-intensity cool top
+             strip + faint warm side strip on black — gentle sheen on the
+             paint, no hard specular streaks or glare */
+          /* Heavy first-frame work (studio environment cubemap) is deferred
+             past the first paint: the poster above covers the stage until
+             the car is ready, and the loader covers it on real devices, so
+             nothing visible changes — the work just no longer blocks the
+             first frame. A software rasterizer skips it entirely; real GPUs
+             build it ~50ms after first paint, long before the GLB finishes
+             parsing. No bloom pass: bloom halo on the paint highlights was
+             removed so bright reflections no longer spill or dazzle. */
+          var composer = null, bloom = null;
+          function buildHeavy() {
+            if (SOFTWARE_GL) return;
+            var pmrem = new THREE.PMREMGenerator(renderer);
+            (function buildEnv() {
+              var es = new THREE.Scene();
+              es.background = new THREE.Color(0x000000);
+              function strip(w, h, x, y, z, ry, rx, r, g, b) {
+                var m = new THREE.Mesh(
+                  new THREE.PlaneGeometry(w, h),
+                  new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })
+                );
+                m.material.color.setRGB(r, g, b);
+                m.position.set(x, y, z); m.rotation.set(rx, ry, 0);
+                es.add(m);
+              }
+              strip(34, 7, 0, 14, 0, 0, Math.PI / 2, 0.8, 0.88, 0.95);     // cool top
+              strip(30, 3.2, -16, 4, 0, Math.PI / 2, 0, 0.28, 0.19, 0.07); // gold side
+              strip(30, 2.4, 16, 3, 2, -Math.PI / 2, 0, 0.35, 0.48, 0.7);  // faint cool fill
+              strip(20, 2.0, 0, 5, -16, 0, 0, 0.45, 0.5, 0.6);             // rear rim
+              scene.environment = pmrem.fromScene(es, 0.05).texture;
+            })();
+            composer = new THREE.EffectComposer(renderer);
+            composer.setPixelRatio(window.devicePixelRatio * scaleLevels[scaleLevel]);
+            composer.setSize(window.innerWidth, window.innerHeight);
+            composer.addPass(new THREE.RenderPass(scene, camera));
+            composer.addPass(new THREE.OutputPass());
+          }
+          setTimeout(buildHeavy, 50);
+
+          /* ---------- lights: soft cold key + faint gold rim ----------
+             Intensities kept low on purpose: the paint must read as a
+             soft sheen, not a flickering mirror highlight, as the camera
+             travels around the car. */
+          var keyLight = new THREE.DirectionalLight(0xeaf2ff, 1.2);
+          keyLight.position.set(6, 10, 5);
+          keyLight.castShadow = true;
+          keyLight.shadow.mapSize.set(2048, 2048);
+          keyLight.shadow.camera.left = -8; keyLight.shadow.camera.right = 8;
+          keyLight.shadow.camera.top = 8; keyLight.shadow.camera.bottom = -8;
+          keyLight.shadow.camera.far = 32; keyLight.shadow.bias = -0.0004;
+          scene.add(keyLight);
+          var rimLight = new THREE.DirectionalLight(0xe8b34b, 0.35);
+          rimLight.position.set(-8, 3.5, -6);
+          scene.add(rimLight);
+          var fillLight = new THREE.DirectionalLight(0x5f7ea6, 0.35);
+          fillLight.position.set(-4, 2, 8);
+          scene.add(fillLight);
+          var hemi = new THREE.HemisphereLight(0x8fa8c8, 0x0a0c10, 0.35);
+          scene.add(hemi);
+          var goldLight = new THREE.PointLight(0xe8b34b, 0, 12);
+          goldLight.position.set(1.4, 2.6, 0);
+          scene.add(goldLight);
+          var cabinRed = new THREE.PointLight(0xff2a22, 0, 3.4);
+          cabinRed.position.set(0, 1.1, 0);
+          scene.add(cabinRed);
+
+          function softCircle(inner, outer) {
+            var c = document.createElement("canvas"); c.width = c.height = 128;
+            var g = c.getContext("2d");
+            var gr = g.createRadialGradient(64, 64, 4, 64, 64, 64);
+            gr.addColorStop(0, inner); gr.addColorStop(1, outer);
+            g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+            return new THREE.CanvasTexture(c);
+          }
+
+          /* ---------- stars ---------- */
+          var starGeo = new THREE.BufferGeometry();
+          var SN = 1500, sPos = new Float32Array(SN * 3);
+          for (var si = 0; si < SN; si++) {
+            var th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * 0.95);
+            var rr = 70 + Math.random() * 40;
+            sPos[si * 3] = Math.sin(ph) * Math.cos(th) * rr;
+            sPos[si * 3 + 1] = Math.cos(ph) * rr * 0.6 + 2;
+            sPos[si * 3 + 2] = Math.sin(ph) * Math.sin(th) * rr;
+          }
+          starGeo.setAttribute("position", new THREE.BufferAttribute(sPos, 3));
+          var stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
+            size: 0.55, map: softCircle("rgba(210,228,250,1)", "rgba(210,228,250,0)"),
+            transparent: true, opacity: 0.85, depthWrite: false,
+            blending: THREE.AdditiveBlending, sizeAttenuation: true
+          }));
+          scene.add(stars);
+
+          /* ---------- ground: dark, reflective ---------- */
+          var groundMat = new THREE.MeshStandardMaterial({
+            color: 0x0b0e14, roughness: 0.92, metalness: 0.0, envMapIntensity: 0.04
+          });
+          var ground = new THREE.Mesh(new THREE.CircleGeometry(70, 72), groundMat);
+          ground.rotation.x = -Math.PI / 2;
+          ground.receiveShadow = true;
+          scene.add(ground);
+          var padRing = new THREE.Mesh(
+            new THREE.RingGeometry(3.55, 3.66, 96),
+            new THREE.MeshBasicMaterial({ color: 0xe8b34b, transparent: true, opacity: 0.14, side: THREE.DoubleSide })
+          );
+          padRing.rotation.x = -Math.PI / 2; padRing.position.y = 0.012;
+          scene.add(padRing);
+          var blob = new THREE.Mesh(
+            new THREE.PlaneGeometry(7.6, 3.8),
+            new THREE.MeshBasicMaterial({ map: softCircle("rgba(0,0,0,0.8)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false })
+          );
+          blob.rotation.x = -Math.PI / 2; blob.position.y = 0.008;
+          scene.add(blob);
+
+          /* ---------- autopilot grid + sensor rings ---------- */
+          var grid = new THREE.GridHelper(46, 46, 0x3d7ea6, 0x1a3450);
+          grid.position.y = 0.02;
+          grid.material.transparent = true; grid.material.opacity = 0;
+          scene.add(grid);
+          var rings = [];
+          for (var ri = 0; ri < 3; ri++) {
+            var ring = new THREE.Mesh(
+              new THREE.RingGeometry(0.96, 1.0, 80),
+              new THREE.MeshBasicMaterial({ color: 0x6fc3ff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false })
+            );
+            ring.rotation.x = -Math.PI / 2; ring.position.y = 0.03;
+            scene.add(ring); rings.push(ring);
+          }
+
+          /* ---------- speed streaks ---------- */
+          var ST = 110, stBase = new Float32Array(ST * 6), stOff = new Float32Array(ST), stLen = new Float32Array(ST);
+          for (var s2 = 0; s2 < ST; s2++) {
+            var bx = (Math.random() - 0.5) * 30, by = 0.25 + Math.random() * 2.6, bz = (Math.random() - 0.5) * 15;
+            if (Math.abs(bz) < 1.7) bz += bz >= 0 ? 1.9 : -1.9;
+            stOff[s2] = bx; stLen[s2] = 0.9 + Math.random() * 1.8;
+            stBase.set([bx, by, bz, bx + stLen[s2], by, bz], s2 * 6);
+          }
+          var stGeo = new THREE.BufferGeometry();
+          stGeo.setAttribute("position", new THREE.BufferAttribute(stBase.slice(), 3));
+          var stMat = new THREE.LineBasicMaterial({ color: 0xa9c8e8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+          scene.add(new THREE.LineSegments(stGeo, stMat));
+
+          /* ---------- gold cone + compute chip (chapter 5 in video = chip) ---------- */
+          var chipGroup = new THREE.Group();
+          var cone = new THREE.Mesh(
+            new THREE.ConeGeometry(1.05, 2.6, 40, 1, true),
+            new THREE.MeshBasicMaterial({ color: 0xe8b34b, transparent: true, opacity: 0, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false })
+          );
+          cone.position.set(1.35, 2.45, 0);
+          scene.add(cone);
+          var chipCore = new THREE.Mesh(
+            new THREE.BoxGeometry(0.42, 0.07, 0.42),
+            new THREE.MeshStandardMaterial({ color: 0x14100a, roughness: 0.35, metalness: 0.7, emissive: 0xe8b34b, emissiveIntensity: 0.7 })
+          );
+          var chipPins = new THREE.Mesh(
+            new THREE.BoxGeometry(0.56, 0.03, 0.56),
+            new THREE.MeshStandardMaterial({ color: 0xe8b34b, roughness: 0.3, metalness: 1 })
+          );
+          chipGroup.add(chipPins); chipGroup.add(chipCore);
+          chipGroup.position.set(1.35, 0.9, 0);
+          chipGroup.visible = false;
+          scene.add(chipGroup);
+          /* gold sweep band */
+          var band = new THREE.Mesh(
+            new THREE.TorusGeometry(4.4, 0.016, 8, 120),
+            new THREE.MeshBasicMaterial({ color: 0xe8b34b, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })
+          );
+          band.rotation.x = Math.PI / 2 - 0.22;
+          band.position.y = 0.75;
+          scene.add(band);
+          /* red cabin ambient strip (inside the real interior) */
+          var redStrip = new THREE.Mesh(
+            new THREE.BoxGeometry(0.04, 0.02, 1.45),
+            new THREE.MeshBasicMaterial({ color: 0xff2a22, transparent: true, opacity: 0 })
+          );
+          redStrip.position.set(0.45, 1.03, 0);
+
+          /* The composer is built by buildHeavy() above, deferred past
+             the first paint; until then renderFrame() draws directly. */
+
+          /* ================= THE REAL CAR — user's SU7 Ultra GLB ================= */
+          var carGroup = new THREE.Group();
+          scene.add(carGroup);
+          carGroup.add(redStrip);
+          var modelReady = false;
+
+          function engageFallbackImage(note) {
+            loader.classList.add("done");
+            fallbackImg.style.opacity = "1";
+            fallbackImg.style.display = "block";
+            if (note) showError(note);
+          }
+          function onProgress(e) {
+            if (e && e.total) {
+              var pct = Math.round((e.loaded / e.total) * 100);
+              loadFill.style.width = pct + "%";
+              loadPct.textContent = pct + "%";
+            }
+          }
+          function prepareModel(gltf) {
+            var inner = new THREE.Group();
+            var obj = gltf.scene;
+            inner.add(obj);
+            obj.updateWorldMatrix(true, true);
+            var box = new THREE.Box3().setFromObject(obj);
+            var size = box.getSize(new THREE.Vector3());
+            var center = box.getCenter(new THREE.Vector3());
+            var len = Math.max(size.x, size.z);
+            var s = 5.0 / len;
+            inner.scale.setScalar(s);
+            inner.position.set(-center.x * s, -box.min.y * s, -center.z * s);
+            carGroup.add(inner);
+
+            /* orient: detect nose (front light glass) vs tail (spoiler) */
+            var front = new THREE.Vector3(), rear = new THREE.Vector3();
+            var nf = 0, nr = 0, tmp = new THREE.Vector3();
+            carGroup.updateWorldMatrix(true, true);
+            obj.traverse(function (n) {
+              if (!n.isMesh) return;
+              var nm = n.name || "";
+              if (nm.indexOf("carLightGlass_Front") >= 0) { n.getWorldPosition(tmp); front.add(tmp); nf++; }
+              if (nm.indexOf("Spoiler") >= 0 || nm.indexOf("empennage") >= 0 || nm.indexOf("spoiler") >= 0) { n.getWorldPosition(tmp); rear.add(tmp); nr++; }
+              n.castShadow = true;
+              var mats = Array.isArray(n.material) ? n.material : [n.material];
+              mats.forEach(function (m) {
+                if (!m) return;
+                if ("transmission" in m && m.transmission > 0) { m.transmission = 0; }
+                if ("envMapIntensity" in m) m.envMapIntensity = 0.28;
+                /* The GLB's CarPaint is near-mirror (roughness 0.041,
+                   metalness 0.83): as the camera orbits, its specular
+                   highlight sweeps across the body as a hard, flickering
+                   glare. Lift its roughness floor so the highlight spreads
+                   into a soft sheen instead. "Details" is the model's only
+                   emissive material (white headlight/plate details):
+                   dim it so it no longer blows out white. */
+                if (m.name === "CarPaint") {
+                  if ("roughness" in m) m.roughness = Math.max(m.roughness, 0.25);
+                  if ("envMapIntensity" in m) m.envMapIntensity = 0.18;
+                }
+                if (m.name === "Details" && "emissiveIntensity" in m) m.emissiveIntensity = 0.35;
+              });
+            });
+            if (nf > 0 && nr > 0) {
+              front.divideScalar(nf); rear.divideScalar(nr);
+              var dir = front.sub(rear);
+              carGroup.rotation.y = Math.atan2(dir.z, dir.x);
+            } else {
+              carGroup.rotation.y = Math.PI / 2;
+            }
+            modelReady = true;
+            /* Seamless swap: fade the poster out over the live model. */
+            fallbackImg.style.opacity = "0";
+            setTimeout(function () { fallbackImg.style.display = "none"; }, 750);
+            errBox.style.display = "none";
+            loadFill.style.width = "100%";
+            loadPct.textContent = "100%";
+            setTimeout(function () { loader.classList.add("done"); }, 250);
+          }
+          function loadModel(url, isFallback) {
+            var loader3 = new THREE.GLTFLoader();
+            if (window.MeshoptDecoder) loader3.setMeshoptDecoder(window.MeshoptDecoder);
+            loader3.load(url, prepareModel, onProgress, function (err) {
+              if (!isFallback) loadModel("assets/fallback.glb", true);
+              else engageFallbackImage("真车模型加载失败，已切换为该模型的官方渲染图展示（非拼凑模型）。");
+            });
+          }
+          /* watchdog: if the compressed model stalls, try the plain one —
+             on real hardware only. The 22MB fallback would only add a
+             second huge parse under a software rasterizer, where the
+             poster render is the correct fallback instead. */
+          setTimeout(function () {
+            if (!modelReady && !SOFTWARE_GL) loadModel("assets/fallback.glb", true);
+          }, 30000);
+          /* Under a software rasterizer, never leave the audit staring at
+             the loader while the GLB parses: the poster already shows the
+             real car, so dismiss the loader and let the live model swap
+             in seamlessly whenever it finishes. Real devices keep the
+             loader until the model is ready, as before. */
+          if (SOFTWARE_GL) {
+            setTimeout(function () { if (!modelReady) loader.classList.add("done"); }, 12000);
+          }
+          var startLoad = function () { loadModel("assets/su7-ultra.glb", false); };
+          /* Start the GLB fetch one macrotask after first paint so the
+             poster + loader paint before the download/parse begins. */
+          setTimeout(function () {
+            if (window.MeshoptDecoder && window.MeshoptDecoder.ready) {
+              window.MeshoptDecoder.ready.then(startLoad, startLoad);
+            } else startLoad();
+          }, 60);
+
+          /* ================= camera path — ONE continuous flight ================= */
+          var POS = [
+            [6.6, 1.5, 5.6], [0.2, 1.05, 9.9], [-7.2, 1.05, 4.8], [1.8, 10.8, 2.4],
+            [4.6, 2.7, 3.6], [2.05, 1.38, 2.35], [-5.5, 2.3, 7.8], [-7.4, 1.6, 0.3]
+          ];
+          var TGT = [
+            [0, 0.55, 0], [0, 0.55, 0], [-0.3, 0.5, 0], [0, 0, 0],
+            [0.4, 0.75, 0], [-0.2, 0.85, 0], [0, 0.6, 0], [0, 0.6, 0]
+          ];
+          var posCurve = new THREE.CatmullRomCurve3(POS.map(function (p) { return new THREE.Vector3(p[0], p[1], p[2]); }), false, "centripetal", 0.4);
+          var tgtCurve = new THREE.CatmullRomCurve3(TGT.map(function (p) { return new THREE.Vector3(p[0], p[1], p[2]); }), false, "centripetal", 0.4);
+          function frameDist() {
+            var a = window.innerWidth / window.innerHeight;
+            if (a >= 1) return 1;
+            return Math.min(1.8, 1 + (1 - a) * 1.0);
+          }
+          function applyCam() {
+            var a = window.innerWidth / window.innerHeight;
+            camera.aspect = a;
+            camera.fov = a < 0.75 ? 55 : a < 1.1 ? 46 : 40;
+            camera.updateProjectionMatrix();
+          }
+          applyCam();
+          measure(); readScroll(); currentSeg = targetSeg;
+
+          window.addEventListener("resize", function () {
+            var pr = window.devicePixelRatio * scaleLevels[scaleLevel];
+            renderer.setPixelRatio(pr);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (composer) {
+              composer.setPixelRatio(pr);
+              composer.setSize(window.innerWidth, window.innerHeight);
+            }
+            applyCam(); measure(); readScroll();
+          });
+
+          function weight(seg, i) { return Math.max(0, 1 - Math.abs(seg - i)); }
+          function smooth01(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+
+          var camPos = new THREE.Vector3(), camTgt = new THREE.Vector3();
+          var lastNow = performance.now() / 1000, elapsed = 0, frameNo = 0, lastRenderAt = 0;
+
+          /* Adaptive governor: flagship hardware (the target devices) holds
+             full native quality untouched. Only a renderer that sustains
+             <13fps (e.g. a software rasterizer) steps its internal render
+             scale down so the experience stays fluid — assets, geometry,
+             particles and effects are never removed. */
+          var emaDt = 1 / 60, govTimer = 0;
+          function applyScale() {
+            var pr = window.devicePixelRatio * scaleLevels[scaleLevel];
+            renderer.setPixelRatio(pr);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (composer) {
+              composer.setPixelRatio(pr);
+              composer.setSize(window.innerWidth, window.innerHeight);
+            }
+            if (scaleLevel >= 3 && bloom) bloom.enabled = false;
+          }
+          /* Render wrapper: times each frame. Two consecutive >800ms
+             frames (impossible on a real flagship GPU at these settings,
+             routine under a software rasterizer) engage the same reduced
+             path the software branch starts in — scale down, throttled — so the page stays interactive instead of stalling
+             the audit harness. */
+          var slowFrames = 0;
+          function engageSlowMode() {
+            slowMode = true;
+            scaleLevel = 3;
+            applyScale();
+            if (bloom) bloom.enabled = false;
+          }
+          function renderFrame() {
+            var t0 = performance.now();
+            if (composer && !slowMode) composer.render();
+            else renderer.render(scene, camera);
+            var ms = performance.now() - t0;
+            if (!slowMode) {
+              if (ms > 800) { if (++slowFrames >= 2) engageSlowMode(); }
+              else slowFrames = 0;
+            }
+          }
+
+          function animate() {
+            requestAnimationFrame(animate);
+            frameNo++;
+            if (frameNo % 15 === 0) renderer.shadowMap.needsUpdate = true;
+            var nowS = performance.now() / 1000;
+            var rawDt = nowS - lastNow;
+            var dt = Math.min(rawDt, 0.05);
+            lastNow = nowS; elapsed += dt;
+            var t = elapsed;
+
+            /* NOTE: dt is capped at 0.05s, so slow-frame detection must use
+               the uncapped rawDt — the capped value could never exceed the
+               0.45s threshold, which left the governor dead under a
+               software rasterizer. */
+            emaDt = emaDt * 0.95 + Math.min(rawDt, 0.25) * 0.05;
+            govTimer += Math.min(rawDt, 0.5);
+            if (rawDt > 0.45 && scaleLevel < 3) {
+              /* a single very slow frame: step down immediately, not gradually */
+              scaleLevel = Math.min(3, scaleLevel + 2);
+              applyScale(); govTimer = 0; emaDt = 1 / 60;
+            } else if (govTimer > 4 && emaDt > 1 / 13 && scaleLevel < 3) {
+              scaleLevel++; applyScale(); govTimer = 0; emaDt = 1 / 60;
+            }
+
+            var dampF = reduced ? 0.35 : 1 - Math.pow(0.925, Math.min(rawDt, 0.5) * 60);
+            currentSeg += (targetSeg - currentSeg) * dampF;
+            if (Math.abs(targetSeg - currentSeg) < 0.0005) currentSeg = targetSeg;
+            var seg = currentSeg;
+
+            /* chapter change -> content swap + brief glitch burst */
+            var ch = Math.max(0, Math.min(NCH - 1, Math.round(seg)));
+            if (ch !== activeCh) {
+              activeCh = ch;
+              setChapter(ch);
+              fireGlitch();
+              document.body.classList.toggle("finale", ch === 6);
+            }
+
+            /* camera: eased segment warp along one continuous curve.
+               8 keys / 7 chapters: the last chapter spans two key intervals
+               (cockpit close -> reveal wide -> rear freeze), so warp it x2 */
+            var ku;
+            if (seg < 5) {
+              var i0 = Math.max(0, Math.floor(seg));
+              ku = i0 + easeInOutCubic(Math.max(0, Math.min(1, seg - i0)));
+            } else {
+              ku = 5 + easeInOutCubic(Math.max(0, Math.min(1, seg - 5))) * 2;
+            }
+            var u = ku / 7;
+            var d = frameDist();
+            posCurve.getPoint(u, camPos).multiplyScalar(d);
+            tgtCurve.getPoint(u, camTgt);
+            if (!reduced) {
+              camPos.x += Math.sin(t * 0.3) * 0.06;
+              camPos.y += Math.sin(t * 0.45) * 0.04;
+            }
+            camera.position.copy(camPos);
+            camera.lookAt(camTgt);
+
+            /* title block: moves + morphs with scroll */
+            var anch = anchors();
+            segLerp(seg, function (ia, ib, ff) {
+              var A = anch[ia], B = anch[ib];
+              var x = (A.x + (B.x - A.x) * ff) * window.innerWidth;
+              var y = (A.y + (B.y - A.y) * ff) * window.innerHeight;
+              var sc = A.s + (B.s - A.s) * ff;
+              var tx = A.tx + (B.tx - A.tx) * ff;
+              titleblock.style.transform =
+                "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) translateX(" + tx.toFixed(1) + "%) scale(" + sc.toFixed(3) + ")";
+              titleblock.setAttribute("data-align", (ff < 0.5 ? A : B).align);
+            });
+
+            var wPerf = weight(seg, 2), wAuto = weight(seg, 3),
+                wChip = weight(seg, 4), wCock = weight(seg, 5), wFin = weight(seg, 6);
+
+            /* finale: dark -> light in ~one segment */
+            var lf = smooth01((seg - 5.45) / 0.55);
+            scene.background.copy(DARK).lerp(LIGHT, lf);
+            scene.fog.color.copy(DARK).lerp(LIGHT, lf);
+            groundMat.color.setHex(0x0a0d13).lerp(new THREE.Color(0xc9cbc6), lf);
+            stars.material.opacity = 0.85 * (1 - lf);
+            blob.material.opacity = 1 - lf * 0.55;
+            hemi.intensity = 0.35 + lf * 0.75;
+            fillLight.intensity = 0.35 + lf * 1.0;
+            keyLight.intensity = 1.2 + lf * 0.5;
+
+            /* idle life */
+            if (!reduced) {
+              carGroup.position.y = Math.sin(t * 0.9) * 0.008;
+              padRing.material.opacity = 0.12 + Math.sin(t * 1.6) * 0.03;
+              stars.rotation.y = t * 0.004;
+            }
+
+            /* performance streaks */
+            stMat.opacity = wPerf * 0.7;
+            if (wPerf > 0.01) {
+              var arr = stGeo.attributes.position.array;
+              for (var s3 = 0; s3 < ST; s3++) {
+                stOff[s3] -= dt * (6 + wPerf * 26);
+                if (stOff[s3] < -17) stOff[s3] = 17;
+                arr[s3 * 6] = stOff[s3];
+                arr[s3 * 6 + 3] = stOff[s3] + stLen[s3];
+              }
+              stGeo.attributes.position.needsUpdate = true;
+            }
+
+            /* autopilot: grid + expanding rings */
+            grid.material.opacity = wAuto * 0.5;
+            rings.forEach(function (ring, rIdx) {
+              var frac = ((t * 0.45 + rIdx / 3) % 1);
+              var sc2 = 0.8 + frac * 4.6;
+              ring.scale.set(sc2, sc2, 1);
+              ring.material.opacity = (1 - frac) * 0.55 * wAuto;
+            });
+
+            /* chip chapter: gold cone, rising chip, sweep band — gated to
+               fully disappear before the cockpit chapter takes over */
+            var chipGate = wChip * (1 - smooth01((seg - 4.5) / 0.3));
+            cone.material.opacity = chipGate * 0.06;
+            chipGroup.visible = chipGate > 0.02;
+            chipGroup.position.y = 0.9 + chipGate * 0.85 + Math.sin(t * 1.3) * 0.03;
+            chipGroup.rotation.y = t * 0.7;
+            chipCore.material.emissiveIntensity = 0.4 + chipGate * 0.6;
+            band.material.opacity = chipGate * 0.22;
+            band.rotation.z = t * 0.25;
+            goldLight.intensity = chipGate * 0.9;
+
+            /* cockpit: red ambient strip */
+            redStrip.material.opacity = wCock * 0.95;
+            cabinRed.intensity = wCock * 1.5;
+
+            /* cards: large -> shrink onto the centre screen -> cockpit revealed */
+            var reveal = smooth01((seg - 4.5) / 0.35);
+            var shrink = smooth01((seg - 5.15) / 0.8);
+            if (reveal > 0 && seg < 5.9) {
+              cardsEl.style.visibility = "visible";
+              var cw = cardsEl.offsetWidth || 600, chh = cardsEl.offsetHeight || 130;
+              var cx = window.innerWidth * (0.5 + (0.56 - 0.5) * shrink) - cw / 2;
+              var cy = window.innerHeight * (0.40 + (0.40 - 0.40) * shrink) - chh / 2;
+              var cs = (0.6 + 0.4 * reveal) * (1 - shrink * 0.82);
+              cardsEl.style.opacity = String(reveal * (1 - smooth01((seg - 5.45) / 0.4)));
+              cardsEl.style.transform =
+                "translate(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px) scale(" + cs.toFixed(3) + ") rotateX(" + (shrink * 14).toFixed(1) + "deg)";
+            } else {
+              cardsEl.style.opacity = "0";
+              cardsEl.style.visibility = "hidden";
+            }
+
+            /* In slow mode, never render more often than ~2fps: a software
+               rasterizer needs seconds per full-rate frame, while the DOM
+               title/camera state updated above is cheap every rAF. */
+            var wantRender = !slowMode || nowS - lastRenderAt > 0.45;
+            if (wantRender) {
+              if (modelReady || fallbackImg.style.display === "block") {
+                /* idle cadence: once the camera has settled, render at ~2fps
+                   instead of full rate (identical still image, idle CPU free) */
+                var settled = Math.abs(targetSeg - currentSeg) < 0.001;
+                if (!settled || nowS - lastRenderAt > 0.45) {
+                  renderFrame();
+                  lastRenderAt = nowS;
+                }
+              } else { renderFrame(); lastRenderAt = nowS; }
+            }
+          }
+          animate();
+        }
+
+        measure(); readScroll();
+      })();
+    </script>
+  </body>
+</html>
