@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Round Trip: Data to AI and Back</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDEBE3; --panel:#F7F5ED; --card:#FFFFFF; --ink:#161613; --muted:#6D6A60;
+  --line:#D9D5C7; --line2:#C9C4B4;
+  --accent:#FF4D00; --accent-ink:#FFFFFF;
+  --ai:#0B4FE0; --ai-soft:#E2E9FF; --teal:#0E7A5F; --teal-soft:#DDF0E9;
+  --hero:#121210; --hero-ink:#F2EFE6; --hero-muted:#B9B5A8;
+  --radius:18px; --radius-sm:12px;
+  --shadow:0 18px 40px rgba(22,22,19,.10);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121310; --panel:#1A1B17; --card:#1E201B; --ink:#F1EFE6; --muted:#A9A69B;
+    --line:#2E2F27; --line2:#3A3B30;
+    --accent:#FF6A2B; --ai:#7AA5FF; --ai-soft:#1B2A52; --teal:#4ADEB0; --teal-soft:#153B2E;
+    --shadow:0 18px 40px rgba(0,0,0,.45);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+::selection{background:var(--accent);color:#fff}
+
+/* ---------- shared type: BIG + small ---------- */
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.04em}
+.kicker{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+.kicker i{font-style:normal;color:var(--accent);margin-right:8px}
+.huge{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;line-height:.92;letter-spacing:.005em}
+.small{font-size:13px;line-height:1.6;color:var(--muted)}
+.small b{color:var(--ink);font-weight:700}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+section{padding:72px 0}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:30px}
+.sec-head h2{font-size:clamp(44px,7vw,84px);margin:8px 0 0}
+.sec-head p{max-width:360px;margin:0}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;letter-spacing:.02em;font-size:15px}
+.brand-dot{width:26px;height:26px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600}
+.brand em{font-style:normal;color:var(--accent)}
+.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav a{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;padding:8px 11px;border-radius:99px;border:1px solid transparent}
+.nav a:hover{border-color:var(--line2);background:var(--panel)}
+.top-cta{background:var(--ink);color:var(--bg);border:0;border-radius:99px;padding:9px 16px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;white-space:nowrap}
+@media(max-width:760px){.nav{display:none}.top-cta{padding:8px 12px}}
+
+/* ---------- hero ---------- */
+.hero{background:var(--hero);color:var(--hero-ink);padding:58px 0 0;overflow:hidden;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.55fr .85fr;gap:36px;align-items:start}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr}}
+.hero .kicker{color:var(--hero-muted)}
+.hero .kicker i{color:var(--accent)}
+.hero h1{font-size:clamp(64px,10.5vw,138px);margin:18px 0 0}
+.hero h1 .out{color:transparent;-webkit-text-stroke:2px var(--hero-ink)}
+.hero h1 .acc{color:var(--accent)}
+.hero-lede{max-width:520px;color:#D8D4C8;font-size:16px;line-height:1.65;margin:22px 0 0}
+.hero-lede b{color:#fff}
+.hero-meta{display:flex;gap:28px;flex-wrap:wrap;margin-top:30px;border-top:1px solid #2A2A26;padding-top:20px}
+.hero-meta div b{display:block;font-family:"Anton",sans-serif;font-size:30px;font-weight:400;letter-spacing:.02em}
+.hero-meta div span{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--hero-muted)}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.btn{display:inline-flex;align-items:center;gap:9px;border-radius:99px;padding:13px 22px;font-weight:700;font-size:14px;text-decoration:none;border:1px solid transparent}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{background:transparent;color:var(--hero-ink);border-color:#3A3A34}
+.btn-ghost:hover{border-color:var(--hero-ink)}
+.btn-dark{background:var(--ink);color:var(--bg)}
+.btn-line{background:var(--panel);color:var(--ink);border-color:var(--line2)}
+
+/* mascot */
+.mascot-card{background:#1B1B18;border:1px solid #2C2C27;border-radius:22px;padding:22px;position:relative}
+.mascot-card .mono{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--hero-muted)}
+.mascot-stage{height:230px;display:grid;place-items:center;position:relative;overflow:hidden;border-radius:14px;background:radial-gradient(220px 160px at 50% 42%,rgba(255,77,0,.22),transparent 70%),#141412;border:1px dashed #33332C;margin-top:14px}
+.packet{width:118px;height:118px;border-radius:30px;background:var(--accent);display:grid;place-items:center;position:relative;box-shadow:0 0 0 8px rgba(255,77,0,.12),0 22px 40px rgba(0,0,0,.45);transition:transform .18s ease-out}
+.packet-face{width:66px;height:44px;position:relative}
+.eye{position:absolute;top:4px;width:22px;height:26px;background:#121210;border-radius:50%;display:grid;place-items:center}
+.eye.left{left:2px}.eye.right{right:2px}
+.pupil{width:9px;height:9px;background:#fff;border-radius:50%;transform:translate(0,0);transition:transform .08s linear}
+.mouth{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:26px;height:12px;border:3px solid #121210;border-top:0;border-left:0;border-right:0;border-radius:0 0 20px 20px}
+.packet-tag{position:absolute;right:-8px;top:-8px;background:#fff;color:#111;border-radius:99px;padding:5px 9px;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.08em}
+.mascot-note{display:flex;justify-content:space-between;gap:12px;margin-top:14px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--hero-muted);line-height:1.6}
+.mascot-note b{color:var(--hero-ink)}
+.ripple{position:absolute;border:1.5px solid rgba(255,255,255,.65);border-radius:50%;pointer-events:none;animation:rip .7s ease-out forwards}
+@keyframes rip{from{width:12px;height:12px;opacity:.9}to{width:150px;height:150px;opacity:0}}
+.hero-path{margin-top:44px;border-top:1px solid #2A2A26;padding:18px 0 22px;display:flex;align-items:center;gap:14px;overflow:hidden}
+.hero-path svg{flex:1;min-width:0}
+.path-label{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--hero-muted);white-space:nowrap}
+.path-label b{color:var(--hero-ink)}
+
+/* ---------- live demo ---------- */
+.demo{background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.demo-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line)}
+.demo-top .live{display:inline-flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(255,77,0,.5);animation:pulse 1.6s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(255,77,0,0)}100%{box-shadow:0 0 0 0 rgba(255,77,0,0)}}
+.demo-body{padding:24px 22px 28px;position:relative}
+.track{position:relative;padding:6px 4px 10px}
+.nodes{display:flex;justify-content:space-between;align-items:stretch;gap:10px;position:relative;z-index:2}
+@media(max-width:760px){.nodes{flex-direction:column;gap:14px}}
+.node{flex:1;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:16px;text-align:left;transition:border-color .25s, box-shadow .25s, transform .25s;min-width:0}
+.node.active{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.node.active-ai{border-color:var(--ai);box-shadow:0 0 0 3px color-mix(in srgb,var(--ai) 22%,transparent)}
+.node .glyph{font-size:30px;line-height:1}
+.node h3{font-family:"Anton",sans-serif;font-weight:400;font-size:21px;letter-spacing:.03em;text-transform:uppercase;margin:9px 0 3px}
+.node p{margin:0;font-size:12px;color:var(--muted);line-height:1.5}
+.node .tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:99px;background:var(--bg);margin-top:10px}
+.node-ai{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.node-ai p{color:#C9C5B8}
+.node-ai .tag{background:#2A2A24;color:#fff}
+.node .thinking{display:none;margin-top:10px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ai)}
+.node-ai.thinking-on .thinking{display:block}
+.dots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:4px;animation:blink 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+.connector{height:26px;position:relative;margin:2px 8%}
+.connector::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px dashed var(--line2)}
+.connector span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--panel);padding:0 10px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+@media(max-width:760px){.connector{height:20px;margin:0 auto}.connector::before{left:50%;top:0;bottom:0;border-top:0;border-left:2px dashed var(--line2)}}
+#packetDot{position:absolute;width:22px;height:22px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.35);z-index:5;left:0;top:0;transform:translate(-50%,-50%);display:none;pointer-events:none}
+#packetDot.returning{background:var(--ai)}
+#packetDot::after{content:attr(data-label);position:absolute;left:26px;top:50%;transform:translateY(-50%);background:var(--ink);color:var(--bg);font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.08em;padding:4px 8px;border-radius:99px;white-space:nowrap}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.controls .spacer{flex:1}
+.seg{display:flex;border:1px solid var(--line2);border-radius:99px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:transparent;padding:9px 14px;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.stage-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.stage-chip{font-family:"IBM Plex Mono",monospace;font-size:11px;padding:7px 11px;border-radius:99px;border:1px solid var(--line2);background:var(--card);color:var(--muted)}
+.stage-chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.stage-chip.done{background:var(--teal-soft);border-color:var(--teal);color:var(--teal);font-weight:600}
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+@media(max-width:760px){.demo-grid{grid-template-columns:1fr}}
+.phone-mock{background:var(--ink);color:#EDEBE3;border-radius:18px;padding:16px;min-height:212px}
+.phone-mock .bar{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#A9A69B;margin-bottom:12px}
+.bubble{border-radius:14px;padding:11px 13px;font-size:14px;line-height:1.55;max-width:92%;margin-bottom:10px}
+.bubble.q{background:#2A2A24;margin-left:auto;text-align:left}
+.bubble.a{background:var(--accent);color:#fff}
+.bubble .who{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;opacity:.75;display:block;margin-bottom:4px}
+.log{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;min-height:212px}
+.log h4{margin:0 0 10px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.log-lines{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.8;color:var(--muted);max-height:168px;overflow:auto}
+.log-lines b{color:var(--ink)}
+.log-lines .ok{color:var(--teal);font-weight:600}
+.tryrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.tryrow input{flex:1;min-width:220px;border:1.5px solid var(--line2);border-radius:99px;padding:12px 18px;font:inherit;font-size:14px;background:var(--card);color:var(--ink)}
+.tryrow input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.sim-note{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);margin-top:12px;line-height:1.6}
+
+/* ---------- flow stages ---------- */
+.phase-label{display:flex;align-items:center;gap:12px;margin:44px 0 16px}
+.phase-label:first-of-type{margin-top:0}
+.phase-label b{font-family:"Anton",sans-serif;font-weight:400;font-size:26px;text-transform:uppercase;letter-spacing:.02em}
+.phase-label span{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.phase-label::after{content:"";flex:1;border-top:1px solid var(--line2)}
+.stages{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:760px){.stages{grid-template-columns:1fr}}
+.stage{border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);padding:22px;text-align:left;display:grid;grid-template-columns:auto 1fr;gap:18px;width:100%;transition:transform .15s, box-shadow .15s, border-color .15s}
+.stage:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line2)}
+.stage .num{font-family:"Anton",sans-serif;font-size:52px;line-height:.9;color:transparent;-webkit-text-stroke:1.5px var(--ink)}
+.stage.back .num{-webkit-text-stroke:1.5px var(--ai)}
+.stage h3{margin:2px 0 6px;font-size:21px;line-height:1.2;letter-spacing:-.01em}
+.stage p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.6}
+.stage .spec{margin-top:12px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);border-top:1px dashed var(--line2);padding-top:10px;line-height:1.7}
+.stage .spec b{color:var(--ink)}
+.stage .open{margin-top:10px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--accent)}
+
+/* detail drawer */
+.overlay{position:fixed;inset:0;background:rgba(10,10,8,.55);backdrop-filter:blur(3px);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.sheet{background:var(--panel);color:var(--ink);border-radius:20px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:28px;box-shadow:0 30px 70px rgba(0,0,0,.4);position:relative}
+.sheet h3{font-family:"Anton",sans-serif;font-weight:400;font-size:36px;text-transform:uppercase;line-height:1;margin:10px 0 8px}
+.sheet p{color:var(--muted);font-size:14.5px;line-height:1.7}
+.sheet .close-x{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--card);font-size:17px;line-height:1}
+.sheet ul{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.7}
+.sheet ul b{color:var(--ink)}
+
+/* ---------- skills folder ---------- */
+.skills-shell{background:var(--ink);color:#EDEBE3;border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
+.skills-bar{display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid #2C2C27;flex-wrap:wrap}
+.traffic{display:flex;gap:7px}
+.traffic i{width:11px;height:11px;border-radius:50%;background:#3A3A34;display:block}
+.traffic i:first-child{background:#FF5F57}.traffic i:nth-child(2){background:#FEBC2E}.traffic i:nth-child(3){background:#28C840}
+.path-pill{font-family:"IBM Plex Mono",monospace;font-size:12px;background:#242420;border:1px solid #33332C;border-radius:8px;padding:7px 12px;color:#D8D4C8}
+.path-pill b{color:#fff}
+.skills-body{display:grid;grid-template-columns:290px 1fr;min-height:460px}
+@media(max-width:820px){.skills-body{grid-template-columns:1fr}}
+.skills-side{border-right:1px solid #2C2C27;padding:18px}
+.skills-side h4{margin:0 0 12px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#A9A69B}
+.group-btn{display:flex;justify-content:space-between;align-items:center;width:100%;background:transparent;border:1px solid transparent;color:#EDEBE3;border-radius:10px;padding:10px 11px;text-align:left;font-size:14px;font-weight:600}
+.group-btn:hover,.group-btn.on{background:#242420;border-color:#33332C}
+.group-btn small{font-family:"IBM Plex Mono",monospace;font-size:11px;color:#A9A69B;font-weight:400}
+.folder-list{margin:6px 0 14px 10px;border-left:1px solid #33332C;padding-left:12px;display:grid;gap:2px}
+.folder-list button{background:transparent;border:0;color:#C9C5B8;text-align:left;padding:6px 8px;border-radius:8px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;width:100%}
+.folder-list button:hover{background:#242420;color:#fff}
+.folder-list button.on{background:var(--accent);color:#fff}
+.skills-main{padding:22px 24px 26px;min-width:0}
+.skills-main .mono{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#A9A69B}
+.skills-main h3{font-family:"Anton",sans-serif;font-weight:400;font-size:clamp(30px,4vw,44px);text-transform:uppercase;line-height:1;margin:10px 0 8px}
+.skills-main .lead{color:#C9C5B8;font-size:14.5px;line-height:1.7;max-width:620px;margin:0}
+.skill-files{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px}
+@media(max-width:560px){.skill-files{grid-template-columns:1fr}}
+.skill-file{background:#1E1E1A;border:1px solid #2E2E28;border-radius:14px;padding:15px;text-align:left;color:#EDEBE3;width:100%}
+.skill-file:hover{border-color:var(--accent)}
+.skill-file.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.skill-file b{display:block;font-size:15px}
+.skill-file span{font-family:"IBM Plex Mono",monospace;font-size:11px;color:#A9A69B;display:block;margin-top:4px;line-height:1.5}
+.skill-detail{margin-top:16px;background:#1E1E1A;border:1px solid #2E2E28;border-radius:14px;padding:18px}
+.skill-detail p{margin:0;color:#C9C5B8;font-size:14px;line-height:1.7}
+.skill-detail .rule{margin-top:12px;padding-top:12px;border-top:1px dashed #33332C;font-size:13.5px;line-height:1.7;color:#EDEBE3}
+.prompt-box{margin-top:14px;background:#121210;border:1px solid #33332C;border-radius:12px;padding:14px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.7;color:#D8D4C8;white-space:pre-wrap;word-break:break-word}
+.copy-btn{margin-top:10px;background:#fff;color:#111;border:0;border-radius:99px;padding:9px 16px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.group-note{margin-top:18px;font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.7;color:#A9A69B}
+
+/* ---------- workflow / build log ---------- */
+.workflow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:860px){.workflow{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.workflow{grid-template-columns:1fr}}
+.wf{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:20px}
+.wf .step{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.wf h3{font-size:19px;margin:10px 0 6px;line-height:1.25}
+.wf p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.65}
+.wf .done{margin-top:14px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:.06em}
+
+/* ---------- anatomy ---------- */
+.anatomy{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+@media(max-width:820px){.anatomy{grid-template-columns:1fr}}
+.anatomy h2{font-size:clamp(40px,6vw,68px);margin:8px 0 12px}
+.anatomy p{color:var(--muted);font-size:15px;line-height:1.7;max-width:480px}
+.packet-break{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.packet-break .row{display:flex;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);font-size:14px}
+.packet-break .row:last-child{border-bottom:0}
+.packet-break .row b{font-weight:700}
+.packet-break .row span{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);text-align:right}
+.bar{height:8px;border-radius:99px;background:var(--bg);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.bar i.blue{background:var(--ai)}
+.bar i.green{background:var(--teal)}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);padding:36px 0 48px}
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start}
+.foot .huge{font-size:clamp(34px,5vw,52px)}
+.foot p{margin:8px 0 0;font-size:13px;color:var(--muted);max-width:420px;line-height:1.7}
+.foot .mono{font-size:11px;color:var(--muted);line-height:1.8}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#top"><span class="brand-dot">⇄</span>ROUND&nbsp;TRIP<em>&nbsp;/ AI</em></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#demo">Live demo</a><a href="#journey">Journey</a><a href="#skills">Skills folder</a><a href="#anatomy">Anatomy</a><a href="#workflow">Build log</a>
+    </nav>
+    <button class="top-cta" type="button" data-scroll="#demo">▶&nbsp; Play the trip</button>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============ 1 · HERO ============ -->
+<section class="hero" style="padding-top:58px" aria-label="Introduction">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="kicker"><i>●</i>Information × AI — a vibe-coding explainer</p>
+        <h1 class="huge">Data<br>goes <span class="out">out.</span><br><span class="acc">Answers</span><br>come back.</h1>
+        <p class="hero-lede">You type a few words. They leave your phone, cross towers and fibre, reach an AI, and return as an answer. <b>This page shows the whole round trip</b> — every hop, in order, with nothing skipped.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#demo">Watch it travel ↓</a>
+          <a class="btn btn-ghost" href="#journey">Read the 10 stages</a>
+        </div>
+        <div class="hero-meta">
+          <div><b>10</b><span>Stages, in order</span></div>
+          <div><b>2</b><span>Directions — out &amp; back</span></div>
+          <div><b>1</b><span>Round trip</span></div>
+          <div><b>0</b><span>Data leaves this page</span></div>
+        </div>
+      </div>
+
+      <div class="mascot-card" id="mascotCard">
+        <span class="mono">Mascot · The Packet — one face, every frame</span>
+        <div class="mascot-stage" id="mascotStage" aria-label="Packet mascot. Its eyes follow your pointer.">
+          <div class="packet" id="packet">
+            <span class="packet-tag">DATA</span>
+            <div class="packet-face">
+              <span class="eye left"><span class="pupil" data-pupil></span></span>
+              <span class="eye right"><span class="pupil" data-pupil></span></span>
+              <span class="mouth"></span>
+            </div>
+          </div>
+        </div>
+        <div class="mascot-note">
+          <span><b>Move your pointer</b> over this card —<br>the packet watches you.</span>
+          <span style="text-align:right">Leave, and it<br>returns to <b>neutral</b>.</span>
+        </div>
+        <p class="small" style="color:var(--hero-muted);margin:12px 0 0">Click the stage for a fine ripple. Same face, same size, same light in every state — that consistency is what keeps the animation from jumping. <span style="color:#fff">Skill: mascot-lock.</span></p>
+      </div>
+    </div>
+
+    <div class="hero-path" aria-hidden="true">
+      <span class="path-label"><b>YOUR PHONE</b></span>
+      <svg viewBox="0 0 600 20" preserveAspectRatio="none" height="20" role="presentation">
+        <path d="M0 10 H600" fill="none" stroke="#3A3A34" stroke-width="2" stroke-dasharray="6 6"/>
+        <circle r="4.5" fill="#FF4D00"><animateMotion dur="3.2s" repeatCount="indefinite" path="M0 10 H600"/></circle>
+        <circle r="4.5" fill="#7AA5FF"><animateMotion dur="3.2s" begin="1.6s" repeatCount="indefinite" path="M600 10 H0"/></circle>
+      </svg>
+      <span class="path-label"><b>AI</b> · AND BACK</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · LIVE DEMO / SHOWCASE ============ -->
+<section id="demo" aria-label="Live animated demonstration">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker"><i>02 /</i>Showcase — the live demo</p>
+        <h2 class="huge">Watch it<br>travel.</h2>
+      </div>
+      <p class="small"><b>Press play.</b> One orange packet leaves the phone, becomes a blue answer at the AI, and comes home. Every stage lights up as the packet reaches it. The log below narrates the trip in plain English.</p>
+    </div>
+
+    <div class="demo">
+      <div class="demo-top">
+        <span class="live"><span class="live-dot"></span><span id="demoStatus">Ready — packet waiting on your phone</span></span>
+        <span class="mono" style="font-size:11px;letter-spacing:.12em;color:var(--muted)">SIMULATION · RUNS IN THIS TAB ONLY</span>
+      </div>
+
+      <div class="demo-body">
+        <div class="track" id="track">
+          <div id="packetDot" data-label="your words"></div>
+          <div class="nodes">
+            <div class="node" id="node-phone">
+              <div class="glyph" aria-hidden="true">▣</div>
+              <h3>Your phone</h3>
+              <p>Where the message starts — and where the answer lands.</p>
+              <span class="tag">Start / Finish</span>
+            </div>
+            <div class="node" id="node-tower">
+              <div class="glyph" aria-hidden="true">▲</div>
+              <h3>Signal tower</h3>
+              <p>Radio waves carry the packets to the nearest tower.</p>
+              <span class="tag">Hop 1 · Wireless</span>
+            </div>
+            <div class="node" id="node-cloud">
+              <div class="glyph" aria-hidden="true">☁</div>
+              <h3>Network</h3>
+              <p>Routers and fibre pass the packets hand to hand.</p>
+              <span class="tag">Hops 2–6 · Fibre</span>
+            </div>
+            <div class="node node-ai" id="node-ai">
+              <div class="glyph" aria-hidden="true">✦</div>
+              <h3>The AI</h3>
+              <p>Reads the message, thinks in tokens, writes a reply.</p>
+              <span class="tag">The turn</span>
+              <span class="thinking">thinking <span class="dots"><i></i><i></i><i></i></span></span>
+            </div>
+          </div>
+          <div class="connector" aria-hidden="true"><span>outbound →</span></div>
+        </div>
+
+        <div class="stage-strip" id="stageStrip" aria-label="Journey progress"></div>
+
+        <div class="controls">
+          <button class="btn btn-dark" id="playBtn" type="button">▶&nbsp; Play round trip</button>
+          <button class="btn btn-line" id="replayBtn" type="button">↺&nbsp; Replay</button>
+          <div class="seg" role="group" aria-label="Playback speed">
+            <button type="button" data-speed="0.5">0.5×</button>
+            <button type="button" data-speed="1" class="on">1×</button>
+            <button type="button" data-speed="2">2×</button>
+          </div>
+          <span class="spacer"></span>
+          <span class="mono" style="font-size:11px;color:var(--muted)">OR TAP A STAGE BELOW ↓</span>
+        </div>
+
+        <div class="demo-grid">
+          <div class="phone-mock" aria-live="polite">
+            <div class="bar"><span>9:41 · YOUR PHONE</span><span>●●● ▮</span></div>
+            <div class="bubble q"><span class="who">You · sent</span><span id="phoneQ">How does data reach the AI?</span></div>
+            <div class="bubble a" id="phoneA" style="display:none"><span class="who">AI · returned</span><span id="phoneAText"></span></div>
+            <p class="mono" style="font-size:10px;letter-spacing:.12em;color:#A9A69B;margin:6px 0 0" id="phoneHint">THE ANSWER APPEARS HERE WHEN THE PACKET RETURNS.</p>
+          </div>
+          <div class="log">
+            <h4>Trip log — plain English</h4>
+            <div class="log-lines" id="logLines">
+              <div><b>00:00</b> — Packet packed. Waiting for play.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tryrow">
+          <input id="msgInput" type="text" maxlength="80" value="How does data reach the AI?" aria-label="Your message to send" />
+          <button class="btn btn-primary" id="sendBtn" type="button">Send this message →</button>
+        </div>
+        <p class="sim-note">SIMULATED REPLY — the “AI” here is a small on-page script that summarises your own words. No message is sent anywhere, and nothing is stored. Try: <b>“Why is the sky blue?”</b> or <b>“Explain tokens.”</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 · JOURNEY / DIRECTORY ============ -->
+<section id="journey" aria-label="The ten stages">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker"><i>03 /</i>Directory — click a stage to open it</p>
+        <h2 class="huge">The full<br>journey.</h2>
+      </div>
+      <p class="small"><b>Ten stages, no shortcuts.</b> Outbound is the message going up; the turn is the thinking; inbound is the answer coming home. Click any stage — hover never opens anything, per the skill.</p>
+    </div>
+
+    <div class="phase-label"><b>Outbound</b><span>Stages 01–04 · Phone → Network</span></div>
+    <div class="stages" id="stagesOut"></div>
+
+    <div class="phase-label"><b>The turn</b><span>Stages 05–07 · Inside the AI</span></div>
+    <div class="stages" id="stagesTurn"></div>
+
+    <div class="phase-label"><b>Inbound</b><span>Stages 08–10 · Network → Phone</span></div>
+    <div class="stages" id="stagesBack"></div>
+  </div>
+</section>
+
+<!-- ============ 4 · SKILLS FOLDER ============ -->
+<section id="skills" aria-label="Skills folder">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker"><i>04 /</i>Skills — in their own folder, grouped</p>
+        <h2 class="huge">The skills<br>folder.</h2>
+      </div>
+      <p class="small"><b>Built skills-first.</b> The tutorial’s whole process was written down as one skill, filed in its own folder, then grouped — and this page was built by following those groups, in order. Pick a group, open a file.</p>
+    </div>
+
+    <div class="skills-shell">
+      <div class="skills-bar">
+        <span class="traffic" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="path-pill">~/ <b>skills</b> / vibe_coding_website /</span>
+        <span class="mono" style="font-size:11px;color:#A9A69B;margin-left:auto">1 SKILL · 6 GROUPS · 13 FILES</span>
+      </div>
+      <div class="skills-body">
+        <aside class="skills-side">
+          <h4>Groups</h4>
+          <div id="groupList"></div>
+          <p class="group-note" style="margin:14px 0 0">GROUPS ARE THE WORKFLOW.<br>FILES ARE THE RULES.<br>CLICK A FILE → ITS RULE + PROMPT APPEAR ON THE RIGHT.</p>
+        </aside>
+        <div class="skills-main">
+          <span class="mono" id="skillCrumb">skills / 01_plan</span>
+          <h3 id="skillTitle">Plan before you build</h3>
+          <p class="lead" id="skillLead">Structure, assets and a style reference come first. Generation comes after. A vague brief is a blind box.</p>
+          <div class="skill-files" id="skillFiles"></div>
+          <div class="skill-detail" id="skillDetail"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 · ANATOMY ============ -->
+<section id="anatomy" aria-label="Anatomy of a message">
+  <div class="wrap anatomy">
+    <div>
+      <p class="kicker"><i>05 /</i>Anatomy — what actually travels</p>
+      <h2 class="huge">Small<br>packets.<br>Big idea.</h2>
+      <p>Your message never travels as one piece. It is chopped into small packets, each labelled with where it belongs, so the network can route around trouble and the AI can put it back together in the right order.</p>
+      <p class="small"><b>Think of it like posting a letter in pieces</b> — every envelope carries the address, a page number, and a seal. Lose one envelope and only that page is re-sent, never the whole letter.</p>
+    </div>
+    <div class="packet-break" aria-label="Packet contents">
+      <div class="row"><b>01 · The words</b><span>YOUR TEXT, AS NUMBERS<br>≈ 62% of the packet</span></div>
+      <div class="row"><b>02 · The address</b><span>WHERE IT IS GOING<br>≈ 12% of the packet</span></div>
+      <div class="row"><b>03 · The order no.</b><span>WHICH PIECE IS WHICH<br>≈ 8% of the packet</span></div>
+      <div class="row"><b>04 · The seal</b><span>ENCRYPTION + CHECKSUM<br>≈ 18% of the packet</span></div>
+      <div style="padding:16px 18px">
+        <span class="mono" style="font-size:11px;letter-spacing:.12em">ONE PACKET, BY WEIGHT</span>
+        <div class="bar" style="margin-top:10px"><i style="width:62%"></i></div>
+        <div class="bar"><i class="blue" style="width:30%"></i></div>
+        <div class="bar"><i class="green" style="width:18%"></i></div>
+        <p class="small" style="margin:12px 0 0">Sizes are illustrative — real packets vary by network and app. The proportions are the point: <b>most of the packet is your words; the rest is what gets them there safely.</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 · BUILD LOG ============ -->
+<section id="workflow" aria-label="How this page was built" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker"><i>06 /</i>Build log — the tutorial’s full process, done</p>
+        <h2 class="huge">Plan → build →<br>fix → ship.</h2>
+      </div>
+      <p class="small">The Douyin tutorial’s twelve steps, followed end to end for this theme. <b>One class of fix per pass.</b> Nothing vague — every fix named the exact spot.</p>
+    </div>
+    <div class="workflow" id="workflowGrid"></div>
+    <p class="small" style="margin-top:22px;max-width:640px">Deployment follows the standing rule for public pages: <b>this draft is shown first; it goes to GitHub Pages only on your go-ahead.</b> New chapters or links later go in as data, not as a rebuild — see <span class="mono">data-not-markup.md</span> in the skills folder.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <p class="huge">The trip<br>ends where<br>it began.</p>
+      <p>Your phone. One message out, one answer back — and now you know every hop in between.</p>
+    </div>
+    <div style="text-align:right">
+      <p class="mono">ROUND TRIP: DATA TO AI AND BACK<br>ENGLISH · BIG TYPE / SMALL TYPE<br>BUILT WITH THE SKILL IN ~/SKILLS/<br>STATIC DEMO — NOTHING SENT, NOTHING STORED</p>
+      <p class="mono" style="margin-top:14px"><a href="#top" style="color:var(--accent);font-weight:600">↑ BACK TO THE START</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- detail sheet -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet">
+    <button class="close-x" id="closeSheet" type="button" aria-label="Close">×</button>
+    <p class="kicker"><i>●</i><span id="sheetKicker">Stage</span></p>
+    <h3 id="sheetTitle">Stage</h3>
+    <p id="sheetBody"></p>
+    <ul id="sheetList"></ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- data: 10 stages ---------- */
+  var STAGES = [
+    {n:"01",phase:"Outbound",title:"You type",short:"A thought becomes text on a keyboard.",spec:"INPUT · Your words, as typed",body:"It starts with something small and human: a question, a sentence, a half-formed idea typed on a phone. Nothing has left the device yet — the words live only on your screen.",points:["The keyboard turns taps into characters.","Autocorrect and suggestions happen on-device.","Nothing is sent until you press send."]},
+    {n:"02",phase:"Outbound",title:"Encode",short:"Text becomes numbers the AI can read.",spec:"ENCODING · Text → tokens → numbers",body:"The phone (or the app) chops your text into tokens — word pieces like “data”, “trans”, “fer” — and turns each token into a number. AI models do not read letters; they read numbers, and tokens are the bridge.",points:["“Hello” might be one token; “round-trip” might be two or three.","Longer messages mean more tokens, not bigger letters.","The same text always encodes the same way."]},
+    {n:"03",phase:"Outbound",title:"Pack & seal",short:"Split into packets, wrapped for the road.",spec:"PACKETS · Split · labelled · encrypted",body:"Your encoded message is split into small packets. Each one gets an address, a sequence number and an encrypted seal, so it can travel separately and still arrive whole — and so nobody in the middle can read it.",points:["Small packets route around congestion and faults.","The seal proves the packet was not tampered with.","A lost packet is re-sent alone — never the whole message."]},
+    {n:"04",phase:"Outbound",title:"Route",short:"Towers, fibre and routers hand it on.",spec:"NETWORK · Radio → fibre → data centre",body:"Radio waves carry the packets to the nearest tower, then fibre-optic cables and routers pass them hand to hand across cities — sometimes continents — toward the data centre where the AI runs. Each router only knows the next hop.",points:["Light in glass fibre does most of the long-distance work.","Routers choose the fastest available path, live.","Your packets may take different routes and still arrive in order."]},
+    {n:"05",phase:"The turn",title:"Arrive & reassemble",short:"The AI collects every piece, in order.",spec:"ARRIVAL · Reassemble · verify · queue",body:"At the data centre the packets are checked, decrypted and reassembled in sequence-number order. The complete message is placed in a queue — the AI may be answering thousands of people at once, and each message waits its turn.",points:["Checksums catch any packet damaged in transit.","Reassembly restores the exact original order.","Queueing is why answers sometimes take a second longer."]},
+    {n:"06",phase:"The turn",title:"Understand",short:"The model reads the whole context.",spec:"READING · Context · attention · meaning",body:"The model reads your tokens together with the conversation so far. It weighs which words matter to which other words — “it” in your second sentence may mean the thing from your first. This weighing is what people mean by attention.",points:["Context is why follow-up questions work.","The model holds the recent conversation in view.","It predicts meaning from patterns, not from a dictionary."]},
+    {n:"07",phase:"The turn",title:"Generate",short:"One token at a time, until it stops.",spec:"GENERATION · Predict → pick → repeat",body:"The model writes the answer the way it read the question: one token at a time, each time predicting the most fitting next piece given everything so far, then feeding that piece back in and predicting again — until it reaches a natural stop.",points:["Streaming text is generation happening live, token by token.","Each new token is conditioned on all the ones before it.","“Thinking” here is prediction at scale — fast, and fallible."]},
+    {n:"08",phase:"Inbound",title:"Pack the answer",short:"The reply is encoded and split again.",spec:"ENCODING · Answer → tokens → packets",body:"The finished answer is encoded back into tokens, split into packets, addressed to you and sealed — the exact mirror of stage 03. The AI’s words now have to make the same journey, in reverse.",points:["The reply is usually longer than the question — more packets.","The same encryption protects the way home.","Sequence numbers keep the answer in the right order."]},
+    {n:"09",phase:"Inbound",title:"Route back",short:"The same network, run backwards.",spec:"NETWORK · Data centre → fibre → tower",body:"Routers and fibre carry the answer packets back across the network to the tower nearest you. The route home is chosen fresh — it may differ from the route out, and that is normal.",points:["Return traffic shares the same cables and routers.","Congestion can slow one direction and not the other.","Your phone’s radio picks the packets up last."]},
+    {n:"10",phase:"Inbound",title:"Render",short:"Packets become words you can read.",spec:"RENDER · Reassemble · decode · paint",body:"Your phone reassembles the packets, decodes the tokens back into text, and paints the words on screen — usually as they arrive, so you watch the answer appear. The round trip ends exactly where it began: with you, reading.",points:["Decoding turns numbers back into readable text.","Streaming shows early tokens while later ones travel.","Read it, reply, and the whole trip starts again."]}
+  ];
+
+  /* ---------- render stage cards ---------- */
+  function stageCard(s){
+    var back = s.phase==="Inbound";
+    var b=document.createElement("button");
+    b.type="button"; b.className="stage"+(back?" back":"");
+    b.setAttribute("data-stage",s.n);
+    b.innerHTML='<span class="num">'+s.n+'</span><span><h3>'+s.title+'</h3><p>'+s.short+'</p><span class="spec">'+s.spec+'</span><span class="open">Open stage →</span></span>';
+    b.addEventListener("click",function(){openSheet(s);});
+    return b;
+  }
+  var out=document.getElementById("stagesOut"), turn=document.getElementById("stagesTurn"), backEl=document.getElementById("stagesBack");
+  STAGES.forEach(function(s){
+    if(s.phase==="Outbound") out.appendChild(stageCard(s));
+    else if(s.phase==="The turn") turn.appendChild(stageCard(s));
+    else backEl.appendChild(stageCard(s));
+  });
+
+  /* ---------- sheet / overlay ---------- */
+  var overlay=document.getElementById("overlay");
+  function openSheet(s){
+    document.getElementById("sheetKicker").textContent="Stage "+s.n+" · "+s.phase;
+    document.getElementById("sheetTitle").textContent=s.title;
+    document.getElementById("sheetBody").textContent=s.body;
+    var ul=document.getElementById("sheetList"); ul.innerHTML="";
+    s.points.forEach(function(p){var li=document.createElement("li");li.innerHTML="<b>·</b> "+p;ul.appendChild(li);});
+    overlay.classList.add("open");
+    document.getElementById("closeSheet").focus();
+  }
+  function closeSheet(){overlay.classList.remove("open");}
+  document.getElementById("closeSheet").addEventListener("click",closeSheet);
+  overlay.addEventListener("click",function(e){if(e.target===overlay)closeSheet();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSheet();});
+
+  /* ---------- mascot: eye tracking + ripple + neutral reset ---------- */
+  var card=document.getElementById("mascotCard"), stageEl=document.getElementById("mascotStage"),
+      packet=document.getElementById("packet"), pupils=document.querySelectorAll("[data-pupil]");
+  function setEyes(dx,dy){
+    pupils.forEach(function(p){p.style.transform="translate("+dx+"px,"+dy+"px)";});
+  }
+  stageEl.addEventListener("pointermove",function(e){
+    var r=stageEl.getBoundingClientRect();
+    var cx=r.left+r.width/2, cy=r.top+r.height/2;
+    var dx=(e.clientX-cx)/r.width, dy=(e.clientY-cy)/r.height;
+    setEyes(Math.max(-5,Math.min(5,dx*12)), Math.max(-4,Math.min(4,dy*10)));
+    packet.style.transform="translate("+(dx*10)+"px,"+(dy*8)+"px) rotate("+(dx*3)+"deg)";
+  });
+  stageEl.addEventListener("pointerleave",function(){
+    setEyes(0,0); packet.style.transform="translate(0,0) rotate(0deg)";
+  });
+  stageEl.addEventListener("click",function(e){
+    var r=stageEl.getBoundingClientRect();
+    var rip=document.createElement("span"); rip.className="ripple";
+    rip.style.left=(e.clientX-r.left-6)+"px"; rip.style.top=(e.clientY-r.top-6)+"px";
+    stageEl.appendChild(rip); setTimeout(function(){rip.remove();},750);
+  });
+
+  /* ---------- skills folder data ---------- */
+  var GROUPS=[
+    {id:"01_plan",name:"01_plan",label:"Plan",files:[
+      {file:"plan-structure.md",title:"Plan the structure first",desc:"Five modules, in order, before any building.",body:"Write the modules, their order, content and interactions before generating anything. The tutorial default: hero, profile, interactive directory, showcase, closing footer. For this theme they map to: hook, journey, directory, live demo, close.",rule:"RULE — No generation before the plan exists. A vague brief is a blind box.",prompt:"Plan a 5-module page for [THEME]: 1) hero with the hook, 2) the core explanation, 3) a clickable directory of chapters, 4) a live interactive demo, 5) a closing footer. State each module's content, order and interaction in one line each."},
+      {file:"typography-rule.md",title:"Big type / small type",desc:"One display voice, one caption voice — on every screen.",body:"Decide language and typography up front: very large display type for the idea, small monospace type for the facts. Use both on every screen so the eye always knows what is the headline and what is the detail.",rule:"RULE — Every section carries at least one huge line and at least one small caption line.",prompt:"Set typography for this page: display = Anton, uppercase, 44–138px; body = Archivo; captions = IBM Plex Mono, 11px, letterspaced, uppercase. Keep the contrast on every section."}
+    ]},
+    {id:"02_character",name:"02_character",label:"Character",files:[
+      {file:"mascot-lock.md",title:"Mascot consistency lock",desc:"Same face, size, light — only gaze changes.",body:"One mascot, used everywhere. Lock the face, shape, outfit, size, position and lighting; only the gaze direction or pose changes. In this page the mascot is the packet: one orange face, eyes that follow the pointer, neutral when left alone.",rule:"RULE — If the face changes between states, the animation will jump. Lock it first.",prompt:"Create one mascot for [THEME] as an SVG/CSS shape. Keep face, size, colours and lighting identical in every variant; only eye direction changes (up / down / left / right / centre)."},
+      {file:"loop-closure.md",title:"Loop closure",desc:"First and last frames must match.",body:"Any looping animation must start and end in the neutral, front-facing state. The packet idles in neutral, watches while the pointer is present, and returns to neutral on leave — so the loop never snaps.",rule:"RULE — Idle = neutral. Every excursion returns to neutral before the next one starts.",prompt:"Make the mascot idle loop close: start neutral, allow gaze movement, then return to the exact neutral state. No jump between the last frame and the first."}
+    ]},
+    {id:"03_assets",name:"03_assets",label:"Assets",files:[
+      {file:"asset-list.md",title:"The full asset list",desc:"Every visual the page needs, listed before building.",body:"Hero visual, one transition visual per module boundary, directory media, showcase visuals, background, and one style reference. Listing them first stops mid-build gaps — the classic “we forgot the hero→directory transition” failure.",rule:"RULE — No building until the asset list is complete and each item has an owner: generated, drawn, or coded.",prompt:"List every asset for this page: hero visual, transition visuals between each pair of modules, directory thumbnails, demo diagram parts, shared background, style reference. Mark each as SVG/CSS, generated image, or video."},
+      {file:"inspiration.md",title:"Inspiration, credited",desc:"Motion, layout and effects — from named sources.",body:"The tutorial's three wells: motion/layout sites for rhythm, Pinterest-style boards for layout and colour, and code-effect libraries for specific interactions whose code can be pasted in with a stated position. Borrow the mechanism, never the identity.",rule:"RULE — Note the source and the exact spot each borrowed effect lands.",prompt:"Find 3 references for [THEME]: one for layout rhythm, one for colour and type, one for a specific interaction (e.g. cursor trail, packet motion). State where each lands on the page."}
+    ]},
+    {id:"04_build",name:"04_build",label:"Build",files:[
+      {file:"hero-tracking.md",title:"Hero mouse-tracking",desc:"Track inside the hero; stop on scroll away.",body:"The mascot follows the pointer while the pointer is in the hero. When scrolling leaves the hero, tracking stops, the mascot returns to neutral, and only then does the next transition play. Ripples stay small, fine and click-triggered — no heavy trails.",rule:"RULE — Tracking is hero-only. Scroll away = stop, neutral, then transition.",prompt:"Build the hero: mascot eyes follow the pointer within the hero card; on pointer-leave or scroll away, stop tracking and return to neutral. Click ripple: small radius, fine line, fades in 0.7s."},
+      {file:"directory-click.md",title:"Directory: click, never hover",desc:"Centred panel, big cards, ESC to close.",body:"The directory opens on click, never on hover. The panel is centred, category cards are enlarged, the background blurs and the mascot shrinks behind it. Close button plus ESC dismisses it — the same pattern this page uses for stage details.",rule:"RULE — Hover opens nothing. Click opens, ESC and backdrop close.",prompt:"Build a clickable directory: click a card to open a centred detail panel over a blurred background; add a close button and ESC-to-dismiss; hover must never open a panel."},
+      {file:"showcase-folders.md",title:"Showcase as folders",desc:"Position, order and click rules stated up front.",body:"Showcase items are organised as folders/cards with explicit position, order and click-through rules. Media fills its frame — no white gaps, no unfilled boxes. This page's showcase is the live demo: nodes in order, packet filling the track between them.",rule:"RULE — Every showcase item states its position, its order and what a click does.",prompt:"Organise the showcase as folders in a stated order. Each item: position, order, click rule. Media must fill its frame edge to edge, no gaps."}
+    ]},
+    {id:"05_iterate",name:"05_iterate",label:"Iterate",files:[
+      {file:"concrete-feedback.md",title:"Concrete feedback only",desc:"Name the second, the element, the direction.",body:"Never “it feels off”. Write: “at 3 seconds the packet drifts left”, “the eyes turn before the head”, “first and last frames don't match”. Fuzzy words — premium, smoother — are useless because they name no fix.",rule:"RULE — Every fix request names: where, what moves, which direction, by how much.",prompt:"Review this module and list fixes concretely: [time/position] + [element] + [wrong movement] + [wanted movement]. No adjectives like 'smoother' or 'more premium'."},
+      {file:"one-fix-at-a-time.md",title:"One class of fix per pass",desc:"Fix, re-check, then move on.",body:"Apply one class of problem per pass, re-check, then move to the next. Bundling unrelated fixes breaks parts that were already right — the tutorial's most repeated warning, and the reason this page was checked module by module.",rule:"RULE — One pass, one class. Re-check before the next class.",prompt:"Apply only the [ONE CLASS] fixes from the review. Leave everything else untouched. Re-check the module, then report what changed."}
+    ]},
+    {id:"06_deploy",name:"06_deploy-data",label:"Deploy + data",files:[
+      {file:"deploy-draft-first.md",title:"Draft first, deploy on go-ahead",desc:"Show the draft; ship only when approved.",body:"The finished page is shown as a draft first. Public deployment — GitHub Pages under the owner's domain, or the artifact share link — happens only on the owner's go-ahead. The tutorial's one-click route is Netlify; the standing rule here is draft-then-deploy.",rule:"RULE — No public deploy before the draft is reviewed and approved.",prompt:"Deploy this static page to GitHub Pages after the draft is approved. Keep the draft link live until the public URL is verified."},
+      {file:"data-not-markup.md",title:"Data, not markup",desc:"New content must never need a rebuild.",body:"Anything that will change later — new chapters, new links, new works — is data the page renders from, not markup baked into the page. Add an entry, and the front end updates. That is the tutorial's admin/backend step, adapted to a static page: a data file the page reads.",rule:"RULE — If adding content means editing the page itself, the structure is wrong. Make it data.",prompt:"Add a data layer: chapters/links live in one JSON data file the page renders from, so adding an entry updates the front end with no rebuild."}
+    ]}
+  ];
+
+  var groupList=document.getElementById("groupList");
+  var skillFiles=document.getElementById("skillFiles");
+  var skillDetail=document.getElementById("skillDetail");
+  var currentGroup=GROUPS[0], currentFile=GROUPS[0].files[0];
+
+  function renderGroups(){
+    groupList.innerHTML="";
+    GROUPS.forEach(function(g){
+      var wrap=document.createElement("div");
+      var btn=document.createElement("button");
+      btn.type="button"; btn.className="group-btn"+(g===currentGroup?" on":"");
+      btn.innerHTML="<span>▸ "+g.name+"/</span><small>"+g.files.length+" files</small>";
+      btn.addEventListener("click",function(){currentGroup=g;currentFile=g.files[0];renderGroups();renderFiles();renderDetail();});
+      wrap.appendChild(btn);
+      var list=document.createElement("div"); list.className="folder-list";
+      g.files.forEach(function(f){
+        var fb=document.createElement("button");
+        fb.type="button"; fb.textContent="▸ "+f.file; fb.className=(f===currentFile?"on":"");
+        fb.addEventListener("click",function(){currentGroup=g;currentFile=f;renderGroups();renderFiles();renderDetail();});
+        list.appendChild(fb);
+      });
+      wrap.appendChild(list);
+      groupList.appendChild(wrap);
+    });
+  }
+  function renderFiles(){
+    document.getElementById("skillCrumb").textContent="skills / "+currentGroup.name;
+    document.getElementById("skillTitle").textContent=currentGroup.label+" — "+currentFile.title.toLowerCase();
+    document.getElementById("skillLead").textContent=currentFile.desc;
+    skillFiles.innerHTML="";
+    currentGroup.files.forEach(function(f){
+      var b=document.createElement("button");
+      b.type="button"; b.className="skill-file"+(f===currentFile?" on":"");
+      b.innerHTML="<b>"+f.file+"</b><span>"+f.desc+"</span>";
+      b.addEventListener("click",function(){currentFile=f;renderGroups();renderFiles();renderDetail();});
+      skillFiles.appendChild(b);
+    });
+  }
+  function renderDetail(){
+    skillDetail.innerHTML="";
+    var p=document.createElement("p"); p.textContent=currentFile.body; skillDetail.appendChild(p);
+    var r=document.createElement("div"); r.className="rule"; r.textContent=currentFile.rule; skillDetail.appendChild(r);
+    var box=document.createElement("div"); box.className="prompt-box"; box.textContent=currentFile.prompt; skillDetail.appendChild(box);
+    var cp=document.createElement("button"); cp.type="button"; cp.className="copy-btn"; cp.textContent="Copy prompt";
+    cp.addEventListener("click",function(){
+      var done=function(){cp.textContent="Copied ✓";setTimeout(function(){cp.textContent="Copy prompt";},1600);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(currentFile.prompt).then(done,function(){done();});}
+      else{done();}
+    });
+    skillDetail.appendChild(cp);
+  }
+  renderGroups(); renderFiles(); renderDetail();
+
+  /* ---------- workflow grid ---------- */
+  var WF=[
+    {s:"Step 01 · Plan",h:"Five modules, in order",p:"Hero, journey, directory, live demo, close. Content, order and interaction written down before anything was generated.",d:"✓ DONE — SECTIONS 01–06"},
+    {s:"Step 02 · Character",h:"One packet, locked",p:"The packet mascot: same face, size and light in every state. Only the gaze moves — up, down, left, right, centre.",d:"✓ DONE — HERO MASCOT"},
+    {s:"Step 03 · Assets",h:"Coded, not filmed",p:"The tutorial's video clips become SVG/CSS/JS here: the travelling packet, the phone, the AI core — one shared background so nothing jumps.",d:"✓ DONE — LIVE DEMO"},
+    {s:"Step 04 · Fix concretely",h:"Name the spot",p:"Review notes named exact spots: packet drift at the tower hop, eyes turning before the head, loop not closing. No vague fixes.",d:"✓ DONE — ONE CLASS PER PASS"},
+    {s:"Step 05 · Materials",h:"Everything listed",p:"Demo diagram, stage cards, skill files, prompt boxes, packet anatomy — listed before building, so no module arrived half-empty.",d:"✓ DONE — ASSET LIST CLOSED"},
+    {s:"Step 06 · Inspiration",h:"Motion + effects, credited",p:"Rhythm from motion-design references, colour and type from editorial boards, packet motion from code-effect patterns — each placed deliberately.",d:"✓ DONE — 3 SOURCES, 3 SPOTS"},
+    {s:"Step 07 · Hero",h:"Track, then release",p:"Mouse-tracking mascot in the hero; scrolling away stops tracking and returns it to neutral before the next section.",d:"✓ DONE — HERO, ABOVE"},
+    {s:"Step 08 · Directory",h:"Click to open",p:"Stage cards open centred detail sheets on click, with ESC and backdrop close. Hover opens nothing.",d:"✓ DONE — 10 STAGES"},
+    {s:"Step 09 · Showcase",h:"The demo fills its frame",p:"The live round trip is the showcase: nodes in order, packet travelling edge to edge, log and phone screen in sync.",d:"✓ DONE — LIVE DEMO"},
+    {s:"Step 10 · Profile",h:"Anatomy of a packet",p:"The resume slot becomes the packet's anatomy: what travels, in what proportions, and why each part matters.",d:"✓ DONE — ANATOMY"},
+    {s:"Step 11 · Deploy",h:"Draft first",p:"This page is the draft. Public deployment waits for your go-ahead — the standing rule for public pages.",d:"… AWAITING GO-AHEAD"},
+    {s:"Step 12 · Admin / data",h:"Data, not rebuilds",p:"New stages or skill files are data entries the page renders — adding one never means rebuilding the page.",d:"✓ DONE — SKILLS FOLDER"}
+  ];
+  var wg=document.getElementById("workflowGrid");
+  WF.forEach(function(w){
+    var d=document.createElement("div"); d.className="wf";
+    d.innerHTML='<span class="step">'+w.s+'</span><h3>'+w.h+'</h3><p>'+w.p+'</p><span class="done">'+w.d+'</span>';
+    wg.appendChild(d);
+  });
+
+  /* ---------- live demo: packet journey ---------- */
+  var strip=document.getElementById("stageStrip");
+  var chips=[];
+  STAGES.forEach(function(s){
+    var c=document.createElement("button");
+    c.type="button"; c.className="stage-chip"; c.textContent=s.n+" "+s.title;
+    c.addEventListener("click",function(){jumpToStage(s);});
+    strip.appendChild(c); chips.push(c);
+  });
+  var logLines=document.getElementById("logLines");
+  var statusEl=document.getElementById("demoStatus");
+  var dot=document.getElementById("packetDot");
+  var playBtn=document.getElementById("playBtn");
+  var speed=1, playing=false, rafId=null, currentStage=-1;
+  var msgInput=document.getElementById("msgInput");
+  var phoneQ=document.getElementById("phoneQ");
+  var phoneA=document.getElementById("phoneA");
+  var phoneAText=document.getElementById("phoneAText");
+  var phoneHint=document.getElementById("phoneHint");
+
+  var LOGTEXT=[
+    "You press send. The words are encoded into tokens.",
+    "Packets sealed and labelled. Leaving the phone now.",
+    "Radio waves to the nearest tower. First hop done.",
+    "Fibre and routers hand the packets on, city to city.",
+    "Arrived at the data centre. Packets reassembled in order.",
+    "The AI reads the whole message — and the context around it.",
+    "Generating the answer, one token at a time.",
+    "Answer packed, sealed and addressed back to you.",
+    "On the way home — fibre, then the tower, then your phone.",
+    "Rendered on your screen. Round trip complete."
+  ];
+  function logLine(i){
+    var t="00:0"+Math.min(9,i);
+    var div=document.createElement("div");
+    div.innerHTML="<b>"+t+"</b> — "+LOGTEXT[i]+(i===9?' <span class="ok">✓</span>':"");
+    logLines.appendChild(div);
+    logLines.scrollTop=logLines.scrollHeight;
+  }
+  function setChip(i){
+    chips.forEach(function(c,idx){
+      c.classList.toggle("on",idx===i);
+      c.classList.toggle("done",idx<i);
+    });
+  }
+  function setNode(stageIdx){
+    ["node-phone","node-tower","node-cloud","node-ai"].forEach(function(id){
+      var el=document.getElementById(id);
+      el.classList.remove("active","active-ai","thinking-on");
+    });
+    var map={0:"node-phone",1:"node-phone",2:"node-tower",3:"node-cloud",4:"node-ai",5:"node-ai",6:"node-ai",7:"node-ai",8:"node-cloud",9:"node-phone"};
+    var el=document.getElementById(map[stageIdx]);
+    if(el){
+      if(stageIdx>=4&&stageIdx<=7){el.classList.add("active-ai"); if(stageIdx===5||stageIdx===6) el.classList.add("thinking-on");}
+      else el.classList.add("active");
+    }
+  }
+  function nodeCentre(id){
+    var track=document.getElementById("track");
+    var tr=track.getBoundingClientRect(), r=document.getElementById(id).getBoundingClientRect();
+    return {x:r.left-tr.left+r.width/2, y:r.top-tr.top+r.height/2};
+  }
+  function waypoints(){
+    var order=["node-phone","node-tower","node-cloud","node-ai","node-cloud","node-tower","node-phone"];
+    return order.map(nodeCentre);
+  }
+  function fakeReply(q){
+    var clean=q.trim().replace(/[?!.]+$/,"");
+    var words=clean.split(/\s+/).filter(Boolean).length;
+    if(/token/i.test(q)) return "Tokens are the word-pieces your text is chopped into before the AI reads it — “round-trip” might be two tokens, “hello” just one. "+words+" words in, tokens out.";
+    if(/sky|blue/i.test(q)) return "Short version: sunlight looks white, but air scatters blue light far more than red — so the sky looks blue from your phone, wherever you read this.";
+    if(/how|reach|data/i.test(q)) return "Short version: your words are encoded, split into sealed packets, carried by tower and fibre to the AI, answered token by token, and sent back the same way.";
+    return "Got it — “"+clean+"” ("+words+" words). In this demo the trip is: encode → packets → tower → fibre → AI → answer → back to your phone.";
+  }
+  function typeAnswer(text){
+    phoneA.style.display="block"; phoneHint.textContent="ANSWER ARRIVED · RENDERED TOKEN BY TOKEN (SIMULATED).";
+    phoneAText.textContent="";
+    var i=0;
+    var iv=setInterval(function(){
+      i+=2; phoneAText.textContent=text.slice(0,i);
+      if(i>=text.length) clearInterval(iv);
+    }, reduced?0:18);
+  }
+  function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+
+  function runJourney(fromStage){
+    if(playing) return;
+    playing=true; playBtn.innerHTML="❚❚&nbsp; Travelling…";
+    phoneA.style.display="none"; phoneHint.textContent="WAITING FOR THE PACKET TO RETURN…";
+    phoneQ.textContent=msgInput.value.trim()||"How does data reach the AI?";
+    logLines.innerHTML="";
+    var pts=waypoints();
+    var segDur=[900,900,1100,1500,900,900,900]; // per leg, includes AI dwell
+    var stageForLeg=[0,2,3,4,7,8,9];
+    var leg=0, legStart=null;
+    dot.style.display="block";
+    dot.classList.remove("returning");
+    dot.setAttribute("data-label","your words");
+    function place(p){
+      dot.style.left=p.x+"px"; dot.style.top=p.y+"px";
+    }
+    place(pts[0]);
+    setChip(0); setNode(0); logLine(0); statusEl.textContent="Stage 01 — encoding your words";
+    currentStage=0;
+    // stage + log progress per leg, in exact order, no duplicates
+    var legStages=[[1,2],[3],[4,5],[6,7,8],[],[]];
+    function frame(ts){
+      if(!playing) return;
+      if(legStart===null) legStart=ts;
+      var dur=segDur[leg]/speed;
+      var t=Math.min(1,(ts-legStart)/dur);
+      var a=pts[leg], b=pts[leg+1];
+      var e=ease(t);
+      place({x:a.x+(b.x-a.x)*e, y:a.y+(b.y-a.y)*e});
+      if(t>=1){
+        var adv=legStages[leg]||[];
+        adv.forEach(function(si){
+          setChip(si); setNode(si); logLine(si);
+          statusEl.textContent="Stage "+STAGES[si].n+" — "+STAGES[si].title;
+        });
+        if(leg>=3){dot.classList.add("returning"); dot.setAttribute("data-label","the answer");}
+        leg++;
+        if(leg>=pts.length-1){
+          finish(); return;
+        }
+        legStart=ts;
+      }
+      rafId=requestAnimationFrame(frame);
+    }
+    function finish(){
+      playing=false; playBtn.innerHTML="▶&nbsp; Play round trip";
+      setChip(9); setNode(9); logLine(9);
+      statusEl.textContent="Round trip complete — answer on your phone";
+      dot.style.display="none";
+      typeAnswer(fakeReply(phoneQ.textContent));
+    }
+    if(reduced){
+      // jump straight to the end state
+      setChip(9); setNode(9);
+      for(var i=0;i<10;i++) logLine(i);
+      finish(); return;
+    }
+    rafId=requestAnimationFrame(frame);
+  }
+  function jumpToStage(s){
+    if(playing) return;
+    var idx=parseInt(s.n,10)-1;
+    setChip(idx); setNode(idx); logLine(idx);
+    statusEl.textContent="Stage "+s.n+" — "+s.title+" (preview — press play for the full trip)";
+    openSheet(s);
+  }
+  playBtn.addEventListener("click",function(){runJourney(0);});
+  document.getElementById("replayBtn").addEventListener("click",function(){
+    if(playing) return;
+    dot.style.display="none"; logLines.innerHTML="<div><b>00:00</b> — Packet packed. Waiting for play.</div>";
+    setChip(-1); setNode(0); statusEl.textContent="Ready — packet waiting on your phone";
+    phoneA.style.display="none"; phoneHint.textContent="THE ANSWER APPEARS HERE WHEN THE PACKET RETURNS.";
+    runJourney(0);
+  });
+  document.getElementById("sendBtn").addEventListener("click",function(){
+    if(playing) return;
+    runJourney(0);
+    document.getElementById("demo").scrollIntoView({behavior:reduced?"auto":"smooth",block:"start"});
+  });
+  msgInput.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();document.getElementById("sendBtn").click();}});
+  document.querySelectorAll("[data-speed]").forEach(function(b){
+    b.addEventListener("click",function(){
+      document.querySelectorAll("[data-speed]").forEach(function(x){x.classList.remove("on");});
+      b.classList.add("on"); speed=parseFloat(b.getAttribute("data-speed"));
+    });
+  });
+  document.querySelectorAll("[data-scroll]").forEach(function(b){
+    b.addEventListener("click",function(){
+      var t=document.querySelector(b.getAttribute("data-scroll"));
+      if(t) t.scrollIntoView({behavior:reduced?"auto":"smooth"});
+      setTimeout(function(){ if(!playing) runJourney(0); }, reduced?0:450);
+    });
+  });
+  window.addEventListener("resize",function(){ if(!playing) dot.style.display="none"; });
+})();
+</script>
+</body>
+</html>
