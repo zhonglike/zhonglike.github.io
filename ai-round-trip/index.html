@@ -49,7 +49,7 @@ section{padding:72px 0}
 
 /* ---------- top bar ---------- */
 .topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.topbar-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+.topbar-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px;position:relative}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;letter-spacing:.02em;font-size:15px}
 .brand-dot{width:26px;height:26px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600}
 .brand em{font-style:normal;color:var(--accent)}
@@ -57,7 +57,17 @@ section{padding:72px 0}
 .nav a{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;padding:8px 11px;border-radius:99px;border:1px solid transparent}
 .nav a:hover{border-color:var(--line2);background:var(--panel)}
 .top-cta{background:var(--ink);color:var(--bg);border:0;border-radius:99px;padding:9px 16px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;white-space:nowrap}
-@media(max-width:760px){.nav{display:none}.top-cta{padding:8px 12px}}
+.menu-btn{display:none;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);font-size:19px;line-height:1}
+.nav-cta{display:none}
+@media(max-width:760px){
+  .nav{display:none;position:absolute;top:56px;left:0;right:0;flex-direction:column;gap:6px;background:var(--bg);border-bottom:1px solid var(--line);box-shadow:0 18px 30px rgba(0,0,0,.14);padding:12px 16px 16px}
+  .nav.open{display:flex}
+  .nav a{padding:12px 14px;font-size:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  .nav a.nav-cta{display:block;background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;text-align:center}
+  .menu-btn{display:inline-flex}
+  .top-cta{display:none}
+  .brand{font-size:14px}
+}
 
 /* ---------- hero ---------- */
 .hero{background:var(--hero);color:var(--hero-ink);padding:58px 0 0;overflow:hidden;position:relative}
@@ -85,7 +95,7 @@ section{padding:72px 0}
 /* mascot */
 .mascot-card{background:#1B1B18;border:1px solid #2C2C27;border-radius:22px;padding:22px;position:relative}
 .mascot-card .mono{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--hero-muted)}
-.mascot-stage{height:230px;display:grid;place-items:center;position:relative;overflow:hidden;border-radius:14px;background:radial-gradient(220px 160px at 50% 42%,rgba(255,77,0,.22),transparent 70%),#141412;border:1px dashed #33332C;margin-top:14px}
+.mascot-stage{height:230px;display:grid;place-items:center;position:relative;overflow:hidden;border-radius:14px;background:radial-gradient(220px 160px at 50% 42%,rgba(255,77,0,.22),transparent 70%),#141412;border:1px dashed #33332C;margin-top:14px;touch-action:pan-y}
 .packet{width:118px;height:118px;border-radius:30px;background:var(--accent);display:grid;place-items:center;position:relative;box-shadow:0 0 0 8px rgba(255,77,0,.12),0 22px 40px rgba(0,0,0,.45);transition:transform .18s ease-out}
 .packet-face{width:66px;height:44px;position:relative}
 .eye{position:absolute;top:4px;width:22px;height:26px;background:#121210;border-radius:50%;display:grid;place-items:center}
@@ -272,7 +282,6 @@ section{padding:72px 0}
 .seg-dark button{color:var(--hero-ink)}
 .seg-dark button.on{background:var(--hero-ink);color:#121210}
 .core-hint{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#A9A69B}
-@media(max-width:640px){.core-hint{display:none}}
 .core-fallback{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:28px;background:#101010;z-index:3}
 .core-fallback.show{display:grid}
 .core-fallback .rings{width:150px;height:150px;margin:0 auto 20px;position:relative}
@@ -298,6 +307,66 @@ footer{border-top:1px solid var(--line);padding:36px 0 48px}
 .foot p{margin:8px 0 0;font-size:13px;color:var(--muted);max-width:420px;line-height:1.7}
 .foot .mono{font-size:11px;color:var(--muted);line-height:1.8}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---------- phone layout: real sizes, touch targets, first-screen mascot ---------- */
+@media(max-width:640px){
+  .wrap{padding:0 16px}
+  section{padding:46px 0}
+  .sec-head{margin-bottom:22px;gap:12px}
+  .sec-head h2{font-size:40px;line-height:.95}
+  .sec-head p{max-width:none}
+  .hero{padding:28px 0 0}
+  .hero-grid{display:flex;flex-direction:column;gap:16px}
+  .hero-grid>div:first-child{display:contents}
+  .hero-grid .kicker{order:1}
+  .hero-grid h1{order:2}
+  .hero-grid .hero-lede{order:3}
+  .hero-grid .hero-actions{order:4}
+  #mascotCard{order:5}
+  .hero-grid .hero-meta{order:6}
+  .hero h1{font-size:clamp(44px,12.8vw,52px);line-height:.9;margin-top:12px}
+  .hero-lede{font-size:14px;line-height:1.55;margin-top:14px}
+  .hero-actions{margin-top:18px}
+  .hero-actions .btn{flex:1 1 0;justify-content:center;min-height:44px;padding:12px 12px;white-space:nowrap}
+  .hero-meta{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;margin-top:22px;padding-top:16px}
+  .hero-meta div b{font-size:25px}
+  .mascot-card{padding:14px}
+  .mascot-card .mono{font-size:9px;letter-spacing:.1em;line-height:1.5}
+  .mascot-stage{height:140px;margin-top:8px}
+  .packet{width:96px;height:96px;border-radius:24px}
+  .packet-face{width:56px;height:38px}
+  .hero-path{margin-top:26px;padding:14px 0 18px}
+  .demo-body{padding:18px 14px 22px}
+  .demo-top{padding:14px 16px}
+  .nodes{gap:10px}
+  .node{padding:14px;min-height:0}
+  .node h3{font-size:19px}
+  .controls .btn,.seg button,.stage-chip{ min-height:44px }
+  .controls .btn{padding:12px 18px}
+  .seg button{padding:10px 14px}
+  .stage-chip{padding:10px 13px}
+  .controls .spacer{display:none}
+  .tryrow{flex-direction:column}
+  .tryrow input{width:100%;min-width:0;min-height:48px}
+  .tryrow .btn{width:100%;justify-content:center;min-height:48px}
+  .stage{padding:18px 16px;gap:14px}
+  .stage .num{font-size:44px}
+  .anatomy h2{font-size:40px}
+  .core-stage{height:430px}
+  .core-controls{left:10px;right:10px;bottom:10px;gap:6px}
+  .core-btn,.seg-dark button{min-height:44px}
+  .core-btn{padding:11px 14px}
+  .core-hint{flex-basis:100%;margin-left:2px;font-size:9px}
+  .core-hud{padding:12px 14px}
+  .skills-body{min-height:0}
+  .skills-side{padding:14px 14px 6px}
+  .skills-side .folder-list{display:none}
+  .skills-side .group-wrap.active .folder-list{display:grid}
+  .skills-main{padding:16px 16px 20px}
+  .sheet{padding:22px 18px;max-height:88vh}
+  .sheet h3{font-size:29px}
+  footer{padding:28px 0 36px}
+  .foot .huge{font-size:36px}
+}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
@@ -309,9 +378,11 @@ footer{border-top:1px solid var(--line);padding:36px 0 48px}
 <header class="topbar">
   <div class="wrap topbar-in">
     <a class="brand" href="#top"><span class="brand-dot">⇄</span>ROUND&nbsp;TRIP<em>&nbsp;/ AI</em></a>
-    <nav class="nav" aria-label="Sections">
+    <nav class="nav" id="siteNav" aria-label="Sections">
       <a href="#demo">Live demo</a><a href="#core3d">3D core</a><a href="#journey">Journey</a><a href="#skills">Skills folder</a><a href="#anatomy">Anatomy</a><a href="#workflow">Build log</a>
+      <a class="nav-cta" href="#demo">▶&nbsp; Play the trip</a>
     </nav>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Open section menu">☰</button>
     <button class="top-cta" type="button" data-scroll="#demo">▶&nbsp; Play the trip</button>
   </div>
 </header>
@@ -340,7 +411,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 48px}
 
       <div class="mascot-card" id="mascotCard">
         <span class="mono">Mascot · The Packet — one face, every frame</span>
-        <div class="mascot-stage" id="mascotStage" aria-label="Packet mascot. Its eyes follow your pointer.">
+        <div class="mascot-stage" id="mascotStage" aria-label="Packet mascot. Its eyes follow your pointer or finger.">
           <div class="packet" id="packet">
             <span class="packet-tag">DATA</span>
             <div class="packet-face">
@@ -351,10 +422,10 @@ footer{border-top:1px solid var(--line);padding:36px 0 48px}
           </div>
         </div>
         <div class="mascot-note">
-          <span><b>Move your pointer</b> over this card —<br>the packet watches you.</span>
+          <span><b>Touch or move your pointer</b> over this card —<br>the packet watches you.</span>
           <span style="text-align:right">Leave, and it<br>returns to <b>neutral</b>.</span>
         </div>
-        <p class="small" style="color:var(--hero-muted);margin:12px 0 0">Click the stage for a fine ripple. Same face, same size, same light in every state — that consistency is what keeps the animation from jumping. <span style="color:#fff">Skill: mascot-lock.</span></p>
+        <p class="small" style="color:var(--hero-muted);margin:12px 0 0">Tap the stage for a fine ripple. Same face, same size, same light in every state — that consistency is what keeps the animation from jumping. <span style="color:#fff">Skill: mascot-lock.</span></p>
       </div>
     </div>
 
@@ -485,7 +556,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 48px}
             <button type="button" data-core-speed="1" class="on">1×</button>
             <button type="button" data-core-speed="2">2×</button>
           </div>
-          <span class="core-hint">Scroll orbits · Drag spins · ← → keys orbit</span>
+          <span class="core-hint">Scroll orbits · Drag spins</span>
         </div>
         <div class="core-fallback" id="coreFallback">
           <div>
@@ -640,6 +711,28 @@ footer{border-top:1px solid var(--line);padding:36px 0 48px}
   "use strict";
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* ---------- mobile section menu ---------- */
+  var menuBtn=document.getElementById("menuBtn"), siteNav=document.getElementById("siteNav");
+  function setMenu(open){
+    if(!menuBtn||!siteNav) return;
+    siteNav.classList.toggle("open",open);
+    menuBtn.setAttribute("aria-expanded",open?"true":"false");
+    menuBtn.setAttribute("aria-label",open?"Close section menu":"Open section menu");
+    menuBtn.textContent=open?"×":"☰";
+  }
+  if(menuBtn&&siteNav){
+    menuBtn.addEventListener("click",function(){ setMenu(!siteNav.classList.contains("open")); });
+    siteNav.addEventListener("click",function(e){
+      if(e.target.closest("a")){
+        setMenu(false);
+        var href=e.target.closest("a").getAttribute("href");
+        if(href==="#demo"){ setTimeout(function(){ if(!playing) runJourney(0); },450); }
+      }
+    });
+    document.addEventListener("keydown",function(e){ if(e.key==="Escape") setMenu(false); });
+    window.addEventListener("resize",function(){ if(window.innerWidth>760) setMenu(false); });
+  }
+
   /* ---------- data: 10 stages ---------- */
   var STAGES = [
     {n:"01",phase:"Outbound",title:"You type",short:"A thought becomes text on a keyboard.",spec:"INPUT · Your words, as typed",body:"It starts with something small and human: a question, a sentence, a half-formed idea typed on a phone. Nothing has left the device yet — the words live only on your screen.",points:["The keyboard turns taps into characters.","Autocorrect and suggestions happen on-device.","Nothing is sent until you press send."]},
@@ -703,6 +796,33 @@ footer{border-top:1px solid var(--line);padding:36px 0 48px}
   stageEl.addEventListener("pointerleave",function(){
     setEyes(0,0); packet.style.transform="translate(0,0) rotate(0deg)";
   });
+  /* Touch: a finger drag across the stage moves the gaze, and lifting
+     returns it to neutral. Pointer events alone are unreliable here
+     because a vertical swipe is claimed by page scrolling. */
+  stageEl.addEventListener("touchmove",function(e){
+    if(!e.touches||!e.touches.length) return;
+    var t=e.touches[0], r=stageEl.getBoundingClientRect();
+    var cx=r.left+r.width/2, cy=r.top+r.height/2;
+    var dx=(t.clientX-cx)/r.width, dy=(t.clientY-cy)/r.height;
+    setEyes(Math.max(-5,Math.min(5,dx*12)), Math.max(-4,Math.min(4,dy*10)));
+    packet.style.transform="translate("+(dx*10)+"px,"+(dy*8)+"px) rotate("+(dx*3)+"deg)";
+  },{passive:true});
+  stageEl.addEventListener("touchend",function(){
+    setEyes(0,0); packet.style.transform="translate(0,0) rotate(0deg)";
+  },{passive:true});
+  /* No pointer on touch screens: let the packet glance around on its
+     own so the hero is alive without a mouse. */
+  if(window.matchMedia("(pointer: coarse)").matches && !reduced){
+    var glanceTimer=null;
+    setInterval(function(){
+      if(document.hidden) return;
+      var dx=(Math.random()*2-1)*4, dy=(Math.random()*2-1)*3;
+      setEyes(dx,dy);
+      packet.style.transform="translate("+(dx*1.6)+"px,"+(dy*1.6)+"px) rotate("+(dx*0.5)+"deg)";
+      clearTimeout(glanceTimer);
+      glanceTimer=setTimeout(function(){ setEyes(0,0); packet.style.transform="translate(0,0) rotate(0deg)"; },1300);
+    },3200);
+  }
   stageEl.addEventListener("click",function(e){
     var r=stageEl.getBoundingClientRect();
     var rip=document.createElement("span"); rip.className="ripple";
@@ -748,6 +868,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 48px}
     groupList.innerHTML="";
     GROUPS.forEach(function(g){
       var wrap=document.createElement("div");
+      wrap.className="group-wrap"+(g===currentGroup?" active":"");
       var btn=document.createElement("button");
       btn.type="button"; btn.className="group-btn"+(g===currentGroup?" on":"");
       btn.innerHTML="<span>▸ "+g.name+"/</span><small>"+g.files.length+" files</small>";
