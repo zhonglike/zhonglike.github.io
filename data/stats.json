@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-02T06:05:40+08:00",
+  "updated_at": "2026-11-02T14:14:44+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 27,
@@ -31,7 +31,7 @@
       "Java": 25201,
       "Inno Setup": 22501
     },
-    "last_activity": "2026-10-29"
+    "last_activity": "2026-10-31"
   },
   "bilibili": {
     "uid": "3493271126935853",
@@ -59,7 +59,7 @@
     "unique_id": "32304602756",
     "name": "可爱的硬币1145",
     "works": 137,
-    "likes": "707",
+    "likes": "708",
     "fans": 60,
     "following": 600,
     "nickname": "可爱的硬币1145",
