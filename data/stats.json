@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-11-03T09:01:48+08:00",
+  "updated_at": "2026-11-03T22:22:35+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
-    "repos": 27,
-    "orig_repos": 16,
+    "repos": 28,
+    "orig_repos": 17,
     "forks": 10,
-    "stars": 18,
+    "stars": 19,
     "followers": 1,
     "following": 9,
     "login": "zhonglike",
@@ -15,23 +15,23 @@
     "avatar": "https://avatars.githubusercontent.com/u/192965202?v=4",
     "languages": {
       "JavaScript": 7,
+      "HTML": 3,
       "Python": 3,
-      "HTML": 2,
       "Dart": 2,
       "C++": 1,
       "PowerShell": 1
     },
     "lang_bytes": {
       "JavaScript": 1344919,
+      "HTML": 394892,
       "Python": 382511,
-      "HTML": 278616,
       "CSS": 216408,
       "Dart": 176677,
       "C++": 39801,
       "Java": 25201,
       "Inno Setup": 22501
     },
-    "last_activity": "2026-10-31"
+    "last_activity": "2026-11-03"
   },
   "bilibili": {
     "uid": "3493271126935853",
@@ -59,9 +59,9 @@
     "unique_id": "32304602756",
     "name": "可爱的硬币1145",
     "works": 137,
-    "likes": "708",
+    "likes": "709",
     "fans": 60,
-    "following": 600,
+    "following": 700,
     "nickname": "可爱的硬币1145",
     "sign": "一个科技爱好者而已，没什么可说的\nGitHub程序发布界面@zhonglike"
   },
