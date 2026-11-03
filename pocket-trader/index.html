@@ -425,7 +425,7 @@ html[data-theme="dark"] .star{color:#5a6270}
     </section>
 
     <section class="panel" style="margin-top:12px">
-      <div class="panel-h"><h2>兑换</h2><span class="muted-note">按新浪外汇实时汇率成交 · 不收手续费</span></div>
+      <div class="panel-h"><h2>兑换</h2><span class="muted-note">按实时汇率成交 · 不收手续费</span></div>
       <form class="form" id="fxForm">
         <label>卖出币种
           <select id="fxFrom"><option value="USD">USD 美元</option><option value="HKD">HKD 港币</option><option value="CNY">CNY 人民币</option></select>
@@ -533,7 +533,7 @@ var SaveProvider = LocalSaveProvider; /* <-- swap to CloudSaveProvider when logi
    error, bad payload) silently lets the app through -- it must never
    lock the user out. Offline handling belongs to the offline gate,
    not to this check, so the check is skipped while offline. */
-var APP_VERSION = "1.0.0";
+var APP_VERSION = "1.0.1";
 var UPDATE_REPO = "zhonglike/pocket-trader";
 var updateBlocked = false;
 function parseVersionString(v){
@@ -675,7 +675,7 @@ if(state.theme!=="dark") state.theme="light";
 function persist(){ try{ SaveProvider.save(state); }catch(e){} }
 
 var quotes = {};        /* sym -> quote */
-var fx = { usdCny:null, hkdCny:null, at:null, ok:false };
+var fx = { usdCny:null, hkdCny:null, at:null, ok:false, stale:false, source:"", failed:false, loading:true, updateFailed:false };
 var sessionHist = {};  /* sym -> [{t,price}] */
 var klineCache = {};   /* sym -> {data, at} */
 var klineFailed = {};
@@ -864,41 +864,114 @@ function parseSina(){
   });
   ["fx_susdcny","fx_shkdcny"].forEach(function(k){
     var raw=window["hq_str_"+k];
-    if(typeof raw==="string"&&raw){ var p=raw.split(","); var v=num(p[1]); if(v){ if(k==="fx_susdcny") fx.usdCny=v; else fx.hkdCny=v; } }
+    if(typeof raw==="string"&&raw){ var p=raw.split(","); var v=fxPick(p, k==="fx_susdcny"?5:0.7, k==="fx_susdcny"?9:1.1); if(v){ if(k==="fx_susdcny") fx.usdCny=v; else fx.hkdCny=v; } }
     try{ delete window["hq_str_"+k]; }catch(e){}
   });
-  if(fx.usdCny&&fx.hkdCny){ fx.ok=true; fx.at=Date.now(); }
+  if(fx.usdCny&&fx.hkdCny){ applyFx("新浪外汇"); }
   return got;
 }
-function fetchFx(){
-  function apply(u,h){
-    if(u!=null&&u>5&&u<9) fx.usdCny=u;
-    if(h!=null&&h>0.7&&h<1.1) fx.hkdCny=h;
-    if(fx.usdCny&&fx.hkdCny){ fx.ok=true; fx.at=Date.now(); }
-  }
-  var sinaFx=loadScript("https://hq.sinajs.cn/list=fx_susdcny,fx_shkdcny","gb2312",3500).then(function(){
+/* ---- FX: dedicated cache + multi-source fallback, each source hard-capped ----
+   The old FX path only had two script sources (Sina, which 403s cross-origin
+   requests, and Tencent USDCNY/HKDCNY, which can come back empty) and only
+   two UI states -- ok, or "loading forever". A failed FX load therefore
+   pinned the strip, the wallet conversion and exchange on "加载中".
+   Now: (1) Tencent first, same pipeline as quotes, trying both the plain
+   and ff_ forex codes; (2) open.er-api.com, a CORS JSON endpoint, with
+   HKD/CNY derived from USD/CNY and USD/HKD; (3) Sina only as a last resort
+   and only when no usable rate exists at all. Every source has a ~4s hard
+   timeout, a failed attempt ends in an explicit failed state, and a good
+   rate is cached on its own key so the next launch shows it at once
+   (labelled as cached) while a refresh runs in the background. */
+var FX_CACHE_KEY = "pocket-trader-fx-v1";
+function fxPick(parts, lo, hi){
+  var v=num(parts[1]); if(v!=null&&v>lo&&v<hi) return v;
+  for(var i=2;i<parts.length;i++){ var x=num(parts[i]); if(x!=null&&x>lo&&x<hi) return x; }
+  return null;
+}
+function fxPickTencent(parts, lo, hi){
+  var v=num(parts[3]); if(v!=null&&v>lo&&v<hi) return v;
+  for(var i=1;i<parts.length;i++){ if(i===3) continue; var x=num(parts[i]); if(x!=null&&x>lo&&x<hi) return x; }
+  return null;
+}
+function renderFxState(){
+  try{ renderFx(); renderAssets(); renderMine(); }catch(e){}
+}
+function applyFx(source){
+  if(!fx.usdCny||!fx.hkdCny) return false;
+  fx.ok=true; fx.stale=false; fx.failed=false; fx.loading=false; fx.updateFailed=false;
+  fx.source=source||fx.source; fx.at=Date.now();
+  saveFxCache(); renderFxState();
+  return true;
+}
+function saveFxCache(){
+  try{ if(fx.usdCny&&fx.hkdCny) localStorage.setItem(FX_CACHE_KEY, JSON.stringify({usdCny:fx.usdCny, hkdCny:fx.hkdCny, at:fx.at, source:fx.source})); }catch(e){}
+}
+function loadFxCache(){
+  try{
+    var raw=localStorage.getItem(FX_CACHE_KEY); if(!raw) return;
+    var c=JSON.parse(raw); if(!c||!c.usdCny||!c.hkdCny) return;
+    fx.usdCny=c.usdCny; fx.hkdCny=c.hkdCny; fx.at=c.at||null; fx.ok=true; fx.stale=true;
+    fx.source=c.source||"缓存汇率"; fx.failed=false; fx.loading=false; fx.updateFailed=false;
+  }catch(e){}
+}
+function markFxFailed(){
+  fx.loading=false;
+  if(fx.ok){ fx.stale=true; fx.updateFailed=true; }
+  else { fx.failed=true; }
+  renderFxState();
+}
+function fetchTencentFx(){
+  var codes=["USDCNY","HKDCNY","ff_USDCNY","ff_HKDCNY"];
+  return loadScript("https://qt.gtimg.cn/q="+codes.join(","),"gb2312",4000).then(function(){
     var u=null,h=null;
-    [["fx_susdcny","u"],["fx_shkdcny","h"]].forEach(function(pair){
+    codes.forEach(function(code){
+      var raw=window["v_"+code];
+      if(typeof raw==="string"&&raw){
+        var pp=raw.split("~");
+        if(code.indexOf("USD")>=0){ var v=fxPickTencent(pp,5,9); if(v!=null) u=v; }
+        else { var w=fxPickTencent(pp,0.7,1.1); if(w!=null) h=w; }
+      }
+      try{ delete window["v_"+code]; }catch(e){ window["v_"+code]=undefined; }
+    });
+    if(u!=null&&h!=null){ fx.usdCny=u; fx.hkdCny=h; }
+    return applyFx("腾讯行情");
+  }).catch(function(){ return false; });
+}
+function fetchErApiFx(){
+  var ctrl=new AbortController(); var to=setTimeout(function(){ctrl.abort();},4000);
+  return fetch("https://open.er-api.com/v6/latest/USD",{signal:ctrl.signal}).then(function(r){
+    clearTimeout(to); if(!r.ok) throw new Error("http "+r.status); return r.json();
+  }).then(function(d){
+    var rates=d&&d.rates; if(!rates) return false;
+    var cny=num(rates.CNY), hkd=num(rates.HKD);
+    if(cny==null||hkd==null||cny<=0||hkd<=0) return false;
+    var u=cny, h=cny/hkd;
+    if(u>5&&u<9&&h>0.7&&h<1.1){ fx.usdCny=u; fx.hkdCny=h; }
+    return applyFx("公开汇率接口");
+  }).catch(function(){ clearTimeout(to); return false; });
+}
+function fetchSinaFx(){
+  return loadScript("https://hq.sinajs.cn/list=fx_susdcny,fx_shkdcny","gb2312",3500).then(function(){
+    var u=null,h=null;
+    [["fx_susdcny","u",5,9],["fx_shkdcny","h",0.7,1.1]].forEach(function(pair){
       var raw=window["hq_str_"+pair[0]];
-      if(typeof raw==="string"&&raw){ var v=num(raw.split(",")[1]); if(pair[1]==="u") u=v; else h=v; }
+      if(typeof raw==="string"&&raw){ var v=fxPick(raw.split(","),pair[2],pair[3]); if(pair[1]==="u") u=v; else h=v; }
       try{ delete window["hq_str_"+pair[0]]; }catch(e){}
     });
-    apply(u,h);
-  }).catch(function(){});
-  var txFx=loadScript("https://qt.gtimg.cn/q=USDCNY,HKDCNY","gb2312",3500).then(function(){
-    var u=null,h=null;
-    [["USDCNY","u"],["HKDCNY","h"]].forEach(function(pair){
-      var raw=window["v_"+pair[0]];
-      if(typeof raw==="string"&&raw){
-        var pp=raw.split("~"); var v=num(pp[3]);
-        if(v==null){ for(var i=0;i<pp.length;i++){ var x=num(pp[i]); if(x!=null&&x>0.5&&x<10){ v=x; break; } } }
-        if(pair[1]==="u") u=v; else h=v;
-      }
-      try{ delete window["v_"+pair[0]]; }catch(e){}
+    if(u!=null&&h!=null){ fx.usdCny=u; fx.hkdCny=h; }
+    return applyFx("新浪外汇");
+  }).catch(function(){ return false; });
+}
+function fetchFx(){
+  var hadUsable=fx.ok;
+  return Promise.all([fetchTencentFx(), fetchErApiFx()]).then(function(results){
+    if(results[0]||results[1]) return true;
+    if(hadUsable){ markFxFailed(); return false; }
+    return fetchSinaFx().then(function(sinaOk){
+      if(!sinaOk) markFxFailed();
+      return sinaOk;
     });
-    apply(u,h);
-  }).catch(function(){});
-  return Promise.all([sinaFx,txFx]);
+  }).catch(function(){ markFxFailed(); return false; });
 }
 /* ---- quote timestamp / delay: quote time is wall time in the market's zone ---- */
 function tzParts(tz, ms){
@@ -951,7 +1024,12 @@ function loadQuoteCache(){
     var raw=localStorage.getItem(QUOTE_CACHE_KEY); if(!raw) return;
     var c=JSON.parse(raw); if(!c||!c.quotes) return;
     Object.keys(c.quotes).forEach(function(sym){ if(BY_SYM[sym]) quotes[sym]=c.quotes[sym]; });
-    if(c.fx&&c.fx.usdCny&&c.fx.hkdCny){ fx.usdCny=c.fx.usdCny; fx.hkdCny=c.fx.hkdCny; fx.ok=true; fx.at=c.fx.at||null; }
+    if(c.fx&&c.fx.usdCny&&c.fx.hkdCny){
+      if(!fx.ok||!fx.at||(c.fx.at||0)>fx.at){
+        fx.usdCny=c.fx.usdCny; fx.hkdCny=c.fx.hkdCny; fx.ok=true; fx.at=c.fx.at||null;
+        fx.stale=true; fx.source=c.fx.source||fx.source||"缓存汇率"; fx.failed=false; fx.loading=false; fx.updateFailed=false;
+      }
+    }
     if(Object.keys(quotes).length){
       lastQuoteAt=c.at||null; quoteSource=c.source||"\u817e\u8baf"; quoteAgeSec=c.ageSec||0;
       lastFetchAt=c.at||Date.now(); quoteCached=true; quoteError=false;
@@ -959,7 +1037,13 @@ function loadQuoteCache(){
   }catch(e){}
 }
 function saveQuoteCache(){
-  try{ localStorage.setItem(QUOTE_CACHE_KEY, JSON.stringify({at:lastQuoteAt, source:quoteSource, ageSec:quoteAgeSec, fx:{usdCny:fx.usdCny, hkdCny:fx.hkdCny, at:fx.at}, quotes:quotes})); }catch(e){}
+  try{
+    var storedFx=null;
+    try{ var prev=JSON.parse(localStorage.getItem(QUOTE_CACHE_KEY)||"null"); if(prev&&prev.fx&&prev.fx.usdCny&&prev.fx.hkdCny) storedFx=prev.fx; }catch(e){}
+    var fxToSave=(fx.usdCny&&fx.hkdCny)?{usdCny:fx.usdCny,hkdCny:fx.hkdCny,at:fx.at,source:fx.source}:(storedFx||{usdCny:fx.usdCny,hkdCny:fx.hkdCny,at:fx.at});
+    if(fx.usdCny&&fx.hkdCny) saveFxCache();
+    localStorage.setItem(QUOTE_CACHE_KEY, JSON.stringify({at:lastQuoteAt, source:quoteSource, ageSec:quoteAgeSec, fx:fxToSave, quotes:quotes}));
+  }catch(e){}
 }
 /* ---- offline gate: browser signal + consecutive quote failures ---- */
 var offlineBlocked=false, consecutiveFailures=0;
@@ -1094,16 +1178,40 @@ function setTheme(t){ state.theme=t; applyTheme(t); persist(); if(selectedSym) d
 /* ================= Rendering ================= */
 function renderFx(){
   var el=$("fxStrip"), box=$("fxBox");
-  if(!fx.ok){ el.textContent="汇率加载中…"; box.textContent="汇率加载中，兑换与总资产折算暂不可用，请稍候，自动刷新将继续重试。"; return; }
+  if(!fx.ok){
+    if(fx.failed){
+      el.textContent="汇率获取失败，自动刷新将继续重试";
+      box.textContent="汇率获取失败：兑换与总资产折算暂不可用，钱包各币种余额不受影响。请检查网络，自动刷新将继续重试。";
+    } else {
+      el.textContent="汇率加载中…";
+      box.textContent="汇率加载中，兑换与总资产折算暂不可用，请稍候，自动刷新将继续重试。";
+    }
+    return;
+  }
   var r1=fx.usdCny, r2=fx.hkdCny, hkdUsd=r2/r1, usdHkd=r1/r2;
-  el.innerHTML='汇率 <b class="num">1 USD = '+fmtNum(r1,4)+' CNY</b> · <b class="num">1 HKD = '+fmtNum(r2,4)+' CNY</b> · <b class="num">1 HKD = '+fmtNum(hkdUsd,4)+' USD</b>';
-  box.innerHTML='实时汇率（新浪外汇）<br><b class="num">1 USD = '+fmtNum(r1,4)+' CNY</b> &nbsp;·&nbsp; <b class="num">1 HKD = '+fmtNum(r2,4)+' CNY</b> &nbsp;·&nbsp; <b class="num">1 USD = '+fmtNum(usdHkd,4)+' HKD</b> &nbsp;·&nbsp; <b class="num">1 CNY = '+fmtNum(1/r1,4)+' USD</b><br><span class="muted-note">港币 / 美元交叉价由 USD/CNY 与 HKD/CNY 推导。更新时间：'+(fx.at?fmtTime(fx.at):"—")+"</span>";
+  var src=fx.source||"缓存汇率";
+  var when=fx.at?fmtTime(fx.at):"—";
+  var staleNote=fx.updateFailed?"汇率更新失败，正在使用上次汇率（"+when+"）":(fx.stale?"上次汇率（"+when+"），正在刷新…":"");
+  el.innerHTML='汇率 <b class="num">1 USD = '+fmtNum(r1,4)+' CNY</b> · <b class="num">1 HKD = '+fmtNum(r2,4)+' CNY</b> · <b class="num">1 HKD = '+fmtNum(hkdUsd,4)+' USD</b>'+(staleNote?' · <span class="muted-note">'+staleNote+'</span>':"");
+  box.innerHTML=(fx.stale?'汇率（'+src+' · 上次汇率）':'实时汇率（'+src+'）')+'<br><b class="num">1 USD = '+fmtNum(r1,4)+' CNY</b> &nbsp;·&nbsp; <b class="num">1 HKD = '+fmtNum(r2,4)+' CNY</b> &nbsp;·&nbsp; <b class="num">1 USD = '+fmtNum(usdHkd,4)+' HKD</b> &nbsp;·&nbsp; <b class="num">1 CNY = '+fmtNum(1/r1,4)+' USD</b><br><span class="muted-note">港币 / 美元交叉价由 USD/CNY 与 HKD/CNY 推导。更新时间：'+when+(fx.updateFailed?' · 汇率更新失败，正在使用上次汇率，兑换按此汇率成交':(fx.stale?' · 缓存汇率，正在刷新':''))+"</span>";
 }
 function renderAssets(){
   var t=totals();
-  $("totalAssets").textContent = fmtMoney("USD", t.total);
-  $("assetSub").textContent = "现金 "+fmtMoney("USD",t.cashUSD)+" + 持仓市值 "+fmtMoney("USD",t.hold.value)
-    + (t.pending ? " · 外币部分待汇率折算" : (fx.ok ? "" : " · 当前无外币资产，汇率待加载"));
+  var fxNote="";
+  if(t.pending){
+    if(!fx.ok) fxNote = fx.failed ? " · 汇率获取失败，总资产仅含美元部分" : " · 汇率加载中，总资产仅含美元部分";
+    else if(fx.updateFailed) fxNote=" · 汇率更新失败，按上次汇率折算";
+    else if(fx.stale) fxNote=" · 按缓存汇率折算";
+    else fxNote=" · 外币部分待汇率折算";
+  } else if(!fx.ok){
+    fxNote = fx.failed ? " · 汇率获取失败" : " · 汇率加载中";
+  } else if(fx.updateFailed){
+    fxNote=" · 汇率更新失败，按上次汇率折算";
+  } else if(fx.stale){
+    fxNote=" · 按缓存汇率折算";
+  }
+  $("totalAssets").textContent = fmtMoney("USD", t.total) + (t.pending?"（部分）":"");
+  $("assetSub").textContent = "现金 "+fmtMoney("USD",t.cashUSD)+" + 持仓市值 "+fmtMoney("USD",t.hold.value) + fxNote;
   var pnlEl=$("totalPnl");
   pnlEl.textContent = (t.pnl>=0?"+":"")+fmtMoney("USD",t.pnl) + (t.pending ? "（部分）" : "");
   pnlEl.className="v num "+dirCls(t.pnl);
@@ -1315,11 +1423,11 @@ function renderMine(){
   $("fxBalanceNote").textContent="可用 "+f+" "+fmtMoney(f,state.cash[f]);
   var amt=parseFloat($("fxAmount").value);
   var prev=$("fxPreview");
-  if(!fx.ok){ prev.textContent="汇率加载中，暂不能兑换。"; return; }
+  if(!fx.ok){ prev.textContent = fx.failed ? "汇率获取失败，暂不能兑换。请检查网络，自动刷新将继续重试。" : "汇率加载中，暂不能兑换。"; return; }
   if(f===t){ prev.textContent="卖出与买入币种相同，无需兑换。"; return; }
   if(!amt||amt<=0){ prev.textContent="请输入大于 0 的金额。"; return; }
   var r=fxRate(f,t); var out=amt*r;
-  prev.innerHTML="汇率：<b class=\"num\">1 "+f+" = "+fmtNum(r,4)+" "+t+"</b> &nbsp;·&nbsp; 可得 <b class=\"num\">"+fmtMoney(t,out)+"</b>（按实时汇率，无手续费）";
+  prev.innerHTML="汇率：<b class=\"num\">1 "+f+" = "+fmtNum(r,4)+" "+t+"</b> &nbsp;·&nbsp; 可得 <b class=\"num\">"+fmtMoney(t,out)+"</b>（"+(fx.updateFailed?"汇率更新失败，使用上次汇率，无手续费":fx.stale?"按缓存汇率，无手续费":"按实时汇率，无手续费")+"）";
 }
 function renderAll(){
   renderStatus(); renderFx(); renderAssets(); renderTables(); renderDetail(); renderHoldings(); renderHistory(); renderMine();
@@ -1515,7 +1623,7 @@ function doExchange(){
   if(offlineBlocked){ toast("需要联网才能使用，请检查网络后重试"); return; }
   var f=$("fxFrom").value, t=$("fxTo").value;
   var amt=parseFloat($("fxAmount").value);
-  if(!fx.ok){ toast("汇率加载中，稍后再兑换"); return; }
+  if(!fx.ok){ toast(fx.failed?"汇率获取失败，暂不能兑换":"汇率加载中，稍后再兑换"); return; }
   if(f===t){ toast("币种相同，无需兑换"); return; }
   if(!amt||amt<=0){ toast("请输入大于 0 的金额"); return; }
   if(amt>state.cash[f]+1e-9){ toast(f+" 余额不足"); return; }
@@ -1645,6 +1753,7 @@ $("resetConfirm").addEventListener("click", function(){
 window.addEventListener("resize", function(){ drawChart(); });
 
 /* ================= Init ================= */
+loadFxCache();
 loadQuoteCache();
 applyTheme(state.theme||"light");
 $("appVersion").textContent="v"+APP_VERSION;
