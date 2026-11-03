@@ -200,6 +200,14 @@ table.plain td{padding:9px 10px;border-bottom:1px solid var(--line2);text-align:
 .offline-card p,.update-card p{margin:0 0 12px;color:var(--ink2);font-size:14.5px}
 .offline-card .btn,.update-card .btn{display:inline-block;text-decoration:none;margin:6px 0 10px;padding:11px 26px}
 .update-card .muted-note,.offline-card .muted-note{margin:0}
+.update-notes{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px;text-align:left;white-space:pre-line}
+.update-progress{height:10px;background:var(--surface2);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin:4px 0 8px}
+.update-progress-bar{height:100%;width:0%;background:var(--redBg);transition:width .2s}
+.update-status{font-size:13.5px;font-weight:700}
+.update-error{color:#8a1a1a;background:#fdeeee;border:1px solid #f3c2c2;border-radius:8px;padding:9px 11px;font-size:13.5px;text-align:left}
+.update-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.update-actions .btn{margin:6px 0 10px}
+html[data-theme="dark"] .update-error{background:#2b1518;border-color:#5a252b;color:#ff9d9d}
 /* ---------- dark theme (Tonghuashun night style) ---------- */
 html[data-theme="dark"]{
   --red:#ff5a50; --red-dk:#ff7a72; --green:#3ddc84; --green-dk:#2fbf71;
@@ -492,8 +500,15 @@ html[data-theme="dark"] .star{color:#5a6270}
   <div class="update-card">
     <h2 id="updateTitle">发现新版本 <span id="updateVersion">—</span></h2>
     <p>请更新后继续使用。<span id="updateCurrent"></span></p>
-    <a class="btn btn-red" id="updateLink" href="https://github.com/zhonglike/pocket-trader/releases" target="_blank" rel="noopener">立即更新</a>
-    <p class="muted-note">更新后请重新打开本页面。</p>
+    <p class="update-notes" id="updateNotes" hidden></p>
+    <div class="update-progress" id="updateProgressWrap" hidden><div class="update-progress-bar" id="updateProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div></div>
+    <p class="update-status num" id="updateStatus" hidden></p>
+    <p class="update-error" id="updateError" hidden></p>
+    <div class="update-actions">
+      <button class="btn btn-red" id="updateBtn" type="button">立即更新</button>
+      <button class="btn" id="updateWebBtn" type="button" hidden>去网页下载</button>
+    </div>
+    <p class="muted-note" id="updateFootNote">更新后请重新打开本页面。</p>
   </div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -520,22 +535,49 @@ var CloudSaveProvider = {
 };
 var SaveProvider = LocalSaveProvider; /* <-- swap to CloudSaveProvider when login ships */
 
-/* ================= App version & forced update check =================
+/* ================= App version & forced update check (1.2: in-app update) =================
    APP_VERSION is the single source of truth for this build's version
    (also shown in "我的"). To release a new version: bump APP_VERSION,
    publish version.json + a GitHub Release in zhonglike/pocket-trader.
-   Update check (silent-fail by design):
-     1) preferred: version.json from the repo (raw.githubusercontent.com),
-        tried on the "main" branch, then "master";
-     2) fallback: GitHub Releases "latest" (api.github.com).
-   Either source may be changed later without touching call sites.
+   Update check reads version.json from the repo (raw.githubusercontent.com),
+   tried on the "main" branch, then "master". version.json format:
+     { "version": "1.2",
+       "apk_url": "https://github.com/zhonglike/pocket-trader/releases/download/v1.2/PocketTrader-1.2.apk",
+       "win_url": "https://github.com/zhonglike/pocket-trader/releases/download/v1.2/PocketTrader-Portable-1.2.exe",
+       "notes": "..." }
+   Only a remote version greater than the local one counts as an update.
    Guardrail: ANY failure here (repo/file not created yet, 404, network
-   error, bad payload) silently lets the app through -- it must never
-   lock the user out. Offline handling belongs to the offline gate,
-   not to this check, so the check is skipped while offline. */
-var APP_VERSION = "1.1";
+   error, bad payload, missing version field) silently lets the app
+   through -- it must never lock the user out. Offline handling belongs
+   to the offline gate, not to this check, so the check is skipped
+   while offline.
+   In-app update flow (the overlay stays blocking until the update
+   completes; no jump to the GitHub page):
+     - Android shell (window.PocketBridge exists): "立即更新" calls
+       PocketBridge.downloadUpdate(apk_url); the shell reports back via
+       window.__ptUpdateProgress(pct), window.__ptUpdateReady() and
+       window.__ptUpdateError(msg). Ready turns the button into
+       "下载完成，点击安装", which calls PocketBridge.installUpdate().
+       On error the reason is shown with "重试下载" and "去网页下载".
+     - Windows shell (window.PocketWin exists): same flow with win_url;
+       Ready turns the button into "下载完成，点击打开新版本", which
+       calls PocketWin.openUpdate() (the host opens the new exe and
+       exits the old one).
+     - Pure web (no bridge): "立即更新" just reloads the page -- the
+       web deployment updates in step with the version, so a refresh
+       is the newest build and no package needs downloading.
+     - Fallback (no bridge but an old shell is detected, e.g. a WebView
+       or Electron UA without the new bridge, or the download URL for
+       the current platform is missing): the old behaviour is kept and
+       the GitHub Releases page is opened, so an old shell never
+       deadlocks on the blocking overlay. */
+var APP_VERSION = "1.2";
 var UPDATE_REPO = "zhonglike/pocket-trader";
+var UPDATE_RELEASES_URL = "https://github.com/zhonglike/pocket-trader/releases";
 var updateBlocked = false;
+var pendingUpdate = null;   /* {version, versionText, apk_url, win_url, notes} */
+var updateState = "idle";   /* idle | downloading | ready | error */
+var updateMode = null;      /* android | windows | web | fallback */
 function parseVersionString(v){
   if(typeof v!=="string") return null;
   var m=v.trim().replace(/^v/i,"").match(/^(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
@@ -552,32 +594,193 @@ function fetchJsonWithTimeout(url, ms){
     clearTimeout(to); if(!r.ok) throw new Error("http "+r.status); return r.json();
   }).catch(function(e){ clearTimeout(to); throw e; });
 }
+function cleanUpdateUrl(v){
+  if(typeof v!=="string") return null;
+  var u=v.trim();
+  return u?u:null;
+}
+function updateBridgeKind(){
+  if(typeof window.PocketBridge!=="undefined" && window.PocketBridge && typeof window.PocketBridge.downloadUpdate==="function") return "android";
+  if(typeof window.PocketWin!=="undefined" && window.PocketWin && typeof window.PocketWin.downloadUpdate==="function") return "windows";
+  return null;
+}
+function isOldShell(){
+  var ua="";
+  try{ ua=navigator.userAgent||""; }catch(e){}
+  return /wv\)|Electron\/|PocketTrader/i.test(ua);
+}
+function resolveUpdateMode(){
+  var kind=updateBridgeKind();
+  if(kind){
+    var url=kind==="android" ? pendingUpdate.apk_url : pendingUpdate.win_url;
+    if(!url) return "fallback";
+    return kind;
+  }
+  if(isOldShell()) return "fallback";
+  return "web";
+}
+function applyUpdateIntro(){
+  var btn=$("updateBtn"), note=$("updateFootNote");
+  if(!btn||!note) return;
+  if(updateMode==="android"){
+    btn.textContent="立即更新（应用内下载）";
+    note.textContent="更新包将直接从 GitHub 下载，全程留在应用内；下载完成后点一下即可安装，存档保留。";
+  }else if(updateMode==="windows"){
+    btn.textContent="立即更新（应用内下载）";
+    note.textContent="更新包将直接从 GitHub 下载，全程留在应用内；下载完成后点一下即可打开新版本。";
+  }else if(updateMode==="web"){
+    btn.textContent="立即更新";
+    note.textContent="网页版与部署同步更新，点一下刷新即为最新版，无需下载安装包。";
+  }else{
+    btn.textContent="立即更新";
+    note.textContent="将打开 GitHub 发布页下载更新包，安装后重新打开本应用。";
+  }
+}
+function openReleasesPage(){
+  var w=null;
+  try{ w=window.open(UPDATE_RELEASES_URL, "_blank", "noopener"); }catch(e){ w=null; }
+  if(!w){
+    var a=document.createElement("a");
+    a.href=UPDATE_RELEASES_URL; a.target="_blank"; a.rel="noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+}
+function setUpdateProgress(pct){
+  var bar=$("updateProgressBar"), wrap=$("updateProgressWrap"), st=$("updateStatus");
+  if(wrap) wrap.hidden=false;
+  if(bar){ bar.style.width=pct+"%"; bar.setAttribute("aria-valuenow", String(pct)); }
+  if(st){ st.hidden=false; st.textContent="正在下载更新包… "+pct+"%"; }
+}
+function startBridgeDownload(){
+  var kind=updateMode;
+  var url=kind==="android" ? pendingUpdate.apk_url : pendingUpdate.win_url;
+  var bridge=kind==="android" ? window.PocketBridge : window.PocketWin;
+  if(!url||!bridge||typeof bridge.downloadUpdate!=="function"){
+    updateMode="fallback"; applyUpdateIntro(); openReleasesPage(); return;
+  }
+  updateState="downloading";
+  var err=$("updateError"), webBtn=$("updateWebBtn"), btn=$("updateBtn");
+  if(err) err.hidden=true;
+  if(webBtn) webBtn.hidden=true;
+  if(btn){ btn.disabled=true; btn.textContent="正在下载…"; }
+  setUpdateProgress(0);
+  try{
+    bridge.downloadUpdate(url);
+  }catch(e){
+    onUpdateError("开始下载失败："+(e&&e.message?e.message:"未知错误"));
+  }
+}
+function handleUpdatePrimary(){
+  if(!pendingUpdate) return;
+  if(updateState==="downloading") return;
+  if(updateState==="ready"){
+    try{
+      if(updateMode==="android" && window.PocketBridge && typeof window.PocketBridge.installUpdate==="function") window.PocketBridge.installUpdate();
+      else if(updateMode==="windows" && window.PocketWin && typeof window.PocketWin.openUpdate==="function") window.PocketWin.openUpdate();
+    }catch(e){
+      onUpdateError("拉起更新失败："+(e&&e.message?e.message:"未知错误"));
+    }
+    return;
+  }
+  /* Re-resolve at click time: a shell bridge may be injected after
+     the overlay first appeared. */
+  updateMode=resolveUpdateMode();
+  if(updateMode==="web"){ location.reload(); return; }
+  if(updateMode==="fallback"){ openReleasesPage(); return; }
+  applyUpdateIntro();
+  startBridgeDownload();
+}
+function onUpdateProgress(pct){
+  if(!pendingUpdate) return;
+  var p=Number(pct);
+  if(isNaN(p)) p=0;
+  p=Math.max(0, Math.min(100, Math.round(p)));
+  updateState="downloading";
+  var btn=$("updateBtn");
+  if(btn){ btn.disabled=true; btn.textContent="正在下载…"; }
+  var webBtn=$("updateWebBtn"); if(webBtn) webBtn.hidden=true;
+  var err=$("updateError"); if(err) err.hidden=true;
+  setUpdateProgress(p);
+}
+function onUpdateReady(){
+  if(!pendingUpdate) return;
+  updateState="ready";
+  setUpdateProgress(100);
+  var st=$("updateStatus"); if(st){ st.hidden=false; st.textContent="下载完成"; }
+  var err=$("updateError"); if(err) err.hidden=true;
+  var webBtn=$("updateWebBtn"); if(webBtn) webBtn.hidden=true;
+  var btn=$("updateBtn");
+  if(btn){
+    btn.disabled=false;
+    btn.textContent=updateMode==="windows" ? "下载完成，点击打开新版本" : "下载完成，点击安装";
+  }
+  var note=$("updateFootNote");
+  if(note) note.textContent=updateMode==="windows" ? "新版本已下载完成，点一下打开新版本，旧版会自动退出。" : "安装包已下载完成，点一下完成更新，存档保留。";
+}
+function onUpdateError(msg){
+  if(!pendingUpdate) return;
+  updateState="error";
+  var text=(typeof msg==="string" && msg.trim()) ? msg.trim() : "下载失败，请检查网络后重试。";
+  var err=$("updateError");
+  if(err){ err.hidden=false; err.textContent="下载失败："+text; }
+  var st=$("updateStatus"); if(st) st.hidden=true;
+  var wrap=$("updateProgressWrap"); if(wrap) wrap.hidden=true;
+  var btn=$("updateBtn");
+  if(btn){ btn.disabled=false; btn.textContent="重试下载"; }
+  var webBtn=$("updateWebBtn"); if(webBtn) webBtn.hidden=false;
+  var note=$("updateFootNote");
+  if(note) note.textContent="也可以去网页下载更新包，安装后重新打开本应用。";
+}
+/* Shell callbacks (called by the native host, never by page code). */
+window.__ptUpdateProgress=onUpdateProgress;
+window.__ptUpdateReady=onUpdateReady;
+window.__ptUpdateError=onUpdateError;
+document.getElementById("updateBtn").addEventListener("click", handleUpdatePrimary);
+document.getElementById("updateWebBtn").addEventListener("click", openReleasesPage);
 function checkForUpdate(){
   if(updateBlocked) return Promise.resolve();
   if(isBrowserOffline()) return Promise.resolve();
   if(offlineBlocked) return Promise.resolve();
   function versionJson(branch){
     return fetchJsonWithTimeout("https://raw.githubusercontent.com/"+UPDATE_REPO+"/"+branch+"/version.json", 6000).then(function(d){
-      var v=parseVersionString(d&&(d.version||d.latest||d.tag_name));
+      if(!d||typeof d!=="object"||d.version==null) throw new Error("no version field");
+      var v=parseVersionString(String(d.version));
       if(!v) throw new Error("no version field");
-      return v;
+      return {
+        version:v,
+        versionText:String(d.version).trim().replace(/^v/i,""),
+        apk_url:cleanUpdateUrl(d.apk_url),
+        win_url:cleanUpdateUrl(d.win_url),
+        notes:typeof d.notes==="string" ? d.notes : ""
+      };
     });
   }
-  return versionJson("main").catch(function(){ return versionJson("master"); }).catch(function(){
-    return fetchJsonWithTimeout("https://api.github.com/repos/"+UPDATE_REPO+"/releases/latest", 6000).then(function(d){
-      var v=parseVersionString(d&&d.tag_name);
-      if(!v) throw new Error("no tag");
-      return v;
-    });
-  }).then(function(remote){
+  return versionJson("main").catch(function(){ return versionJson("master"); }).then(function(remote){
     var local=parseVersionString(APP_VERSION);
-    if(remote&&local&&compareVersions(remote,local)>0) showUpdateOverlay(remote);
+    if(remote&&local&&compareVersions(remote.version,local)>0) showUpdateOverlay(remote);
   }).catch(function(){ /* silent pass: missing repo/file or network error -- never block */ });
 }
-function showUpdateOverlay(remote){
+function showUpdateOverlay(info){
   updateBlocked=true;
-  $("updateVersion").textContent="v"+remote.join(".");
+  pendingUpdate=info;
+  updateState="idle";
+  updateMode=resolveUpdateMode();
+  $("updateVersion").textContent="v"+info.versionText;
   $("updateCurrent").textContent="当前版本 v"+APP_VERSION;
+  var notesEl=$("updateNotes");
+  if(notesEl){
+    var notes=info.notes?info.notes.trim():"";
+    if(notes){ notesEl.hidden=false; notesEl.textContent=notes; }
+    else notesEl.hidden=true;
+  }
+  var bar=$("updateProgressBar");
+  if(bar){ bar.style.width="0%"; bar.setAttribute("aria-valuenow","0"); }
+  var wrap=$("updateProgressWrap"); if(wrap) wrap.hidden=true;
+  var st=$("updateStatus"); if(st) st.hidden=true;
+  var err=$("updateError"); if(err) err.hidden=true;
+  var webBtn=$("updateWebBtn"); if(webBtn) webBtn.hidden=true;
+  var btn=$("updateBtn"); if(btn) btn.disabled=false;
+  applyUpdateIntro();
   $("updateOverlay").classList.add("show");
 }
 
