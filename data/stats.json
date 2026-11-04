@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-11-04T07:26:42+08:00",
+  "updated_at": "2026-11-04T14:31:47+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 28,
     "orig_repos": 17,
     "forks": 10,
-    "stars": 19,
+    "stars": 20,
     "followers": 1,
     "following": 9,
     "login": "zhonglike",
@@ -18,8 +18,8 @@
       "HTML": 3,
       "Python": 3,
       "Dart": 2,
-      "C++": 1,
-      "PowerShell": 1
+      "PowerShell": 1,
+      "C++": 1
     },
     "lang_bytes": {
       "JavaScript": 1344919,
