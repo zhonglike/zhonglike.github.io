@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-11-12T15:17:39+08:00",
+  "updated_at": "2026-11-13T03:58:45+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 29,
     "orig_repos": 17,
     "forks": 11,
-    "stars": 21,
+    "stars": 22,
     "followers": 1,
     "following": 11,
     "login": "zhonglike",
@@ -59,7 +59,7 @@
     "unique_id": "32304602756",
     "name": "可爱的硬币1145",
     "works": 137,
-    "likes": "709",
+    "likes": "710",
     "fans": 60,
     "following": 700,
     "nickname": "可爱的硬币1145",
