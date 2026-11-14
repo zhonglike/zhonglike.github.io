@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-14T14:31:16+08:00",
+  "updated_at": "2026-11-15T02:10:00+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 31,
     "orig_repos": 18,
     "forks": 12,
     "stars": 22,
-    "followers": 1,
-    "following": 12,
+    "followers": 2,
+    "following": 13,
     "login": "zhonglike",
     "name": "G-zhonglike",
     "bio": "I enjoy using AI to create small applications, especially for Android and Windows platforms, to make life easier. I love the feeling! It makes me happy!",
@@ -24,10 +24,10 @@
     },
     "lang_bytes": {
       "JavaScript": 1344919,
-      "Python": 505751,
+      "Python": 522856,
       "HTML": 432929,
-      "CSS": 222313,
-      "Rust": 207500,
+      "CSS": 223154,
+      "Rust": 207410,
       "Dart": 176677,
       "C++": 39801,
       "Java": 25201
