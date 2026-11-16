@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-11-16T02:54:22+08:00",
+  "updated_at": "2026-11-16T14:36:51+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
-    "repos": 31,
+    "repos": 32,
     "orig_repos": 18,
-    "forks": 12,
+    "forks": 13,
     "stars": 22,
     "followers": 2,
     "following": 13,
