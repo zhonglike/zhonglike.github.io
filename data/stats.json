@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-11-19T04:36:34+08:00",
+  "updated_at": "2026-11-19T15:31:24+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 33,
     "orig_repos": 19,
     "forks": 13,
-    "stars": 23,
+    "stars": 24,
     "followers": 2,
     "following": 14,
     "login": "zhonglike",
@@ -33,7 +33,7 @@
       "C++": 39801,
       "Java": 25201
     },
-    "last_activity": "2026-11-17"
+    "last_activity": "2026-11-18"
   },
   "bilibili": {
     "uid": "3493271126935853",
