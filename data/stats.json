@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-11-27T16:41:14+08:00",
+  "updated_at": "2026-11-28T05:22:19+08:00",
   "note": "由 GitHub Actions 定时刷新；页面加载时读取，失败则回退到 HTML 内的静态兜底值。",
   "github": {
     "repos": 33,
     "orig_repos": 19,
     "forks": 13,
-    "stars": 24,
-    "followers": 2,
+    "stars": 25,
+    "followers": 3,
     "following": 14,
     "login": "zhonglike",
     "name": "G-zhonglike",
@@ -18,9 +18,9 @@
       "HTML": 3,
       "Python": 3,
       "Dart": 2,
+      "PowerShell": 1,
       "Other": 1,
       "Rust": 1,
-      "PowerShell": 1,
       "C++": 1
     },
     "lang_bytes": {
@@ -63,7 +63,7 @@
     "works": 137,
     "likes": "710",
     "fans": 60,
-    "following": 700,
+    "following": 600,
     "nickname": "可爱的硬币1145",
     "sign": "一个科技爱好者而已，没什么可说的\nGitHub程序发布界面@zhonglike"
   },
